@@ -1,0 +1,51 @@
+﻿@page "/properties"
+@using Core.Interfaces
+@using Core.Models
+@*@inject IAsyncRepository<Property> repo*@
+
+<div class="container">
+	@foreach (var item in _properties)
+	{
+		<div class="card mb-3" style="max-width: 740px;min-height:300px;min-width:480px">
+			<div class="row g-0">
+				<div class="col-md-8">
+					<picture>
+						<source srcset="..." type="image/svg+xml">
+						<img src="..." class="img-fluid img-thumbnail" style="min-height:300px;min-width:480px" alt="...">
+					</picture>
+				</div>
+				<div class="col-md-4">
+					<div class="card-body align-content-center">
+						<h5 class="card-title fw-bold pt-5">€@item.Price per month</h5>
+						<p class="card-text mb-1">@item.Address</p>
+						<p class="card-text align-text-top"><small class="text-muted">@item.Category - @item.Type </small></p>
+					</div>
+				</div>
+			</div>
+		</div>
+		<br />
+	}
+</div>
+
+@code {
+
+	public List<Property> _properties { get; set; } = new();
+
+	protected override async Task OnInitializedAsync()
+	{
+		//_properties = await repo.ListAsync((1, 10));
+
+		if (_properties.Count == 0) _properties.AddRange(new[]{
+			new Property("oi", "Dublin 7, smithfield market", RentCategory.Share, PropertyType.Appartment, 400),
+			new Property("oi", "Dublin 7, smithfield market", RentCategory.Share, PropertyType.Appartment, 400),
+			new Property("oi", "Dublin 7, smithfield market", RentCategory.Share, PropertyType.Appartment, 400),
+			new Property("oi", "Dublin 7, smithfield market", RentCategory.Share, PropertyType.Appartment, 400),
+			new Property("oi", "Dublin 7, smithfield market", RentCategory.Share, PropertyType.Appartment, 400),
+			new Property("oi", "Dublin 7, smithfield market", RentCategory.Share, PropertyType.Appartment, 400)
+			}
+		);
+
+		await base.OnInitializedAsync();
+	}
+
+}
