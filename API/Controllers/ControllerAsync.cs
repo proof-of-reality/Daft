@@ -15,9 +15,9 @@ public class ControllerAsync<T> : BaseControllerAsync<T>, IAsyncRest<T> where T 
 
     [HttpGet("{id}")]
     public virtual async Task<ActionResult<T>> GetAsync(int id, CancellationToken token = default) =>
-        Ok(await Repository.GetAsync(id, token));
+        ModelState.IsValid ? Ok(await Repository.GetAsync(id, token)) : BadRequest(ModelState.ValidationState);
 
     [HttpDelete("{id}")]
     public virtual async Task<ActionResult<bool>> DeleteAsync(int id, CancellationToken token = default) =>
-        Ok(await Repository.DeleteAsync(id, token));
+        ModelState.IsValid ? Ok(await Repository.DeleteAsync(id, token)) : BadRequest(ModelState.ValidationState);
 }
