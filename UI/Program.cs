@@ -1,8 +1,19 @@
+using Microsoft.Extensions.DependencyInjection;
+
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
+builder.Services.AddHttpClient();
 builder.Services.AddRazorPages();
 builder.Services.AddServerSideBlazor();
+builder.Services.AddHttpClient("SSLUntrusted").ConfigurePrimaryHttpMessageHandler(() =>
+new HttpClientHandler
+{
+    ClientCertificateOptions = ClientCertificateOption.Manual,
+    ServerCertificateCustomValidationCallback =
+            (httpRequestMessage, cert, cetChain, policyErrors) => true
+});
+
 
 var app = builder.Build();
 
@@ -14,7 +25,9 @@ if (!app.Environment.IsDevelopment())
     app.UseHsts();
 }
 
-app.UseHttpsRedirection();
+
+
+//app.UseHttpsRedirection();
 app.MapControllers();
 app.UseStaticFiles();
 

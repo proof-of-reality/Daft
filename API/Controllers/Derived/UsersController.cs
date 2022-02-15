@@ -16,4 +16,11 @@ public class UsersController : ControllerAsync<User>
         entity.Password = "fjnefgehnjofieknml";
         return base.Post(entity, token);
     }
+
+    [HttpPost("Login")]
+    public virtual async Task<ActionResult<bool>> Login(User user, CancellationToken token)
+    {
+        var userRepo = await _repository.ListAsync(u => u.Email.Equals(user.Email) && u.Password.Equals(u.Password), (0, 1), token);
+        return userRepo is not null;
+    }
 }

@@ -10,12 +10,13 @@
   "profiles": {
     "UI": {
       "commandName": "Project",
-      "dotnetRunMessages": true,
+      "commandLineArgs": "dotnet run API",
       "launchBrowser": true,
-      "applicationUrl": "https://localhost:7258;http://localhost:5258",
       "environmentVariables": {
         "ASPNETCORE_ENVIRONMENT": "Development"
-      }
+      },
+      "applicationUrl": "https://localhost:7258;http://localhost:5258",
+      "dotnetRunMessages": true
     },
     "IIS Express": {
       "commandName": "IISExpress",

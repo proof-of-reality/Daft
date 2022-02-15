@@ -1,7 +1,8 @@
 ﻿@page "/properties"
-@using Core.Interfaces
 @using Core.Models
-@*@inject IAsyncRepository<Property> repo*@
+@using System.Text.Json;
+
+@inherits ComponentAPI
 
 <div class="container">
 	@foreach (var item in _properties)
@@ -29,23 +30,13 @@
 
 @code {
 
-	public List<Property> _properties { get; set; } = new();
+	private List<Property> _properties = new();
 
 	protected override async Task OnInitializedAsync()
 	{
-		//_properties = await repo.ListAsync((1, 10));
-
-		if (_properties.Count == 0) _properties.AddRange(new[]{
-			new Property("oi", "Dublin 7, smithfield market", RentCategory.Share, PropertyType.Appartment, 400),
-			new Property("oi", "Dublin 7, smithfield market", RentCategory.Share, PropertyType.Appartment, 400),
-			new Property("oi", "Dublin 7, smithfield market", RentCategory.Share, PropertyType.Appartment, 400),
-			new Property("oi", "Dublin 7, smithfield market", RentCategory.Share, PropertyType.Appartment, 400),
-			new Property("oi", "Dublin 7, smithfield market", RentCategory.Share, PropertyType.Appartment, 400),
-			new Property("oi", "Dublin 7, smithfield market", RentCategory.Share, PropertyType.Appartment, 400)
-			}
-		);
+		using var client = GetClient();
+		_properties = await client.GetFromJsonAsync<List<Property>>(this + "Properties") ?? new List<Property>();
 
 		await base.OnInitializedAsync();
 	}
-
 }
