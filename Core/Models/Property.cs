@@ -23,17 +23,15 @@ public class Property : Identifiable
     {
     }
 
-    public Property(string title, string address, RentCategory category, PropertyType type, decimal price)
+    public Property(string address, RentCategory category, PropertyType type, decimal price)
     {
-        Title = title;
         Address = address;
         Category = category;
         Type = type;
         Price = price;
     }
 
-    [Required]
-    public string Title { get; set; } = string.Empty;
+    public string Title => $"{Price} per month";
 
     [Required]
     public string Address { get; set; } = string.Empty;

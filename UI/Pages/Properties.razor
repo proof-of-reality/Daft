@@ -37,6 +37,15 @@
 		using var client = GetClient();
 		_properties = await client.GetFromJsonAsync<List<Property>>("Properties") ?? new List<Property>();
 
+		//just for testing
+		_properties = new()
+			{
+				new("smithfield", RentCategory.Share, PropertyType.Appartment, 500),
+				new("d08 a245", RentCategory.Share, PropertyType.Appartment, 340),
+				new("d12 v271", RentCategory.Share, PropertyType.Appartment, 390),
+			};
+		// test-end
+
 		await base.OnInitializedAsync();
 	}
 }
