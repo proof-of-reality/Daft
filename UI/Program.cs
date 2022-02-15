@@ -6,13 +6,14 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddHttpClient();
 builder.Services.AddRazorPages();
 builder.Services.AddServerSideBlazor();
-builder.Services.AddHttpClient("SSLUntrusted").ConfigurePrimaryHttpMessageHandler(() =>
-new HttpClientHandler
-{
-    ClientCertificateOptions = ClientCertificateOption.Manual,
-    ServerCertificateCustomValidationCallback =
+builder.Services
+    .AddHttpClient("api", config => config.BaseAddress = new Uri("https://localhost:7255/api/"))
+    .ConfigurePrimaryHttpMessageHandler(() => new HttpClientHandler
+    {
+        ClientCertificateOptions = ClientCertificateOption.Manual,
+        ServerCertificateCustomValidationCallback =
             (httpRequestMessage, cert, cetChain, policyErrors) => true
-});
+    });
 
 
 var app = builder.Build();
