@@ -5,23 +5,28 @@
 @using Core.Models
 
 @inherits ComponentAPI
+@inject NavigationManager Navigator
 
-<div class="container-fluid bg-white">
-	<div class="d-grid gap-2 col-5 mx-auto bg-bg-dark">
-		<h3>Sign in to continue</h3>
-		<div class="mb-3">
-			<label class="form-label">Email or username</label>
-			<input type="email" @bind="user.Email" class="form-control">
-		</div>
-		<div class="mb-3">
-			<label class="form-label">Password</label>
-			<input type="password" @bind="user.Password" class="form-control" />
-		</div>
-		<div class="mb-3">
-			<button type="submit" class="btn btn-primary btn-lg" @onclick="login">Sign In</button>
+<EditForm Model="user" OnSubmit="login">
+	<DataAnnotationsValidator />
+	<ValidationSummary />
+	<div class="container-fluid bg-white">
+		<div class="d-grid gap-2 col-5 mx-auto bg-bg-dark">
+			<h3>Sign in to continue</h3>
+			<div class="mb-3">
+				<label class="form-label">Email or username</label>
+				<InputText type="email" @bind-Value="user.Email" class="form-control"></InputText>
+			</div>
+			<div class="mb-3">
+				<label class="form-label">Password</label>
+				<InputText type="password" @bind-Value="user.Password" class="form-control"></InputText>
+			</div>
+			<div class="mb-3">
+				<button type="submit" class="btn btn-primary btn-lg" @onclick="login">Sign In</button>
+			</div>
 		</div>
 	</div>
-</div>
+</EditForm>
 
 
 
@@ -33,7 +38,9 @@
 	{
 		using var client = GetClient();
 
-		var response = await client.PostAsJsonAsync($"{Host}Users/Login", user);
+		var response = await client.PostAsJsonAsync("Users/Login", user);
 		response.EnsureSuccessStatusCode();
+
+		if (await response.Content.ReadFromJsonAsync<bool>()) Navigator.NavigateTo("/");
 	}
 }

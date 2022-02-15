@@ -35,7 +35,7 @@
 	protected override async Task OnInitializedAsync()
 	{
 		using var client = GetClient();
-		_properties = await client.GetFromJsonAsync<List<Property>>(this + "Properties") ?? new List<Property>();
+		_properties = await client.GetFromJsonAsync<List<Property>>("Properties") ?? new List<Property>();
 
 		await base.OnInitializedAsync();
 	}
