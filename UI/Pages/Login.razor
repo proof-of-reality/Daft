@@ -1,8 +1,8 @@
 ﻿@page "/login"
 
 @using System.Text.Json
-@using System.Text.Json.Serialization;
 @using Core.Models
+@using System.Text.Json.Serialization
 
 @inherits ComponentAPI
 @inject NavigationManager Navigator
@@ -11,7 +11,7 @@
 	<DataAnnotationsValidator />
 	<ValidationSummary />
 	<div class="container-fluid bg-white">
-		<div class="d-grid gap-2 col-5 mx-auto bg-bg-dark">
+		<div class="d-grid gap-2 col-5 mx-auto bg-dark">
 			<h3>Sign in to continue</h3>
 			<div class="mb-3">
 				<label class="form-label">Email or username</label>

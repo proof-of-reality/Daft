@@ -19,7 +19,7 @@
 					<div class="card-body align-content-center">
 						<h5 class="card-title fw-bold pt-5">€@item.Price per month</h5>
 						<p class="card-text mb-1">@item.Address</p>
-						<p class="card-text align-text-top"><small class="text-muted">@item.Category - @item.Type </small></p>
+						<p class="card-text align-text-top"><small class="text-muted">@item.OfferPurpose - @item.Type </small></p>
 					</div>
 				</div>
 			</div>
@@ -40,9 +40,9 @@
 		//just for testing
 		_properties = new()
 			{
-				new("smithfield", RentCategory.Share, PropertyType.Appartment, 500),
-				new("d08 a245", RentCategory.Share, PropertyType.Appartment, 340),
-				new("d12 v271", RentCategory.Share, PropertyType.Appartment, 390),
+				new("smithfield", OfferPurpose.Share, PropertyType.Appartment, 500),
+				new("d08 a245", OfferPurpose.Share, PropertyType.Appartment, 340),
+				new("d12 v271", OfferPurpose.Share, PropertyType.Appartment, 390),
 			};
 		// test-end
 

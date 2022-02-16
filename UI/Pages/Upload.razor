@@ -1,0 +1,116 @@
+﻿@page "/upload"
+
+@using Core.Models
+@using UI.Pages
+
+@inherits ComponentAPI
+@inject NavigationManager Navigator
+
+<h3>Upload</h3>
+<PageTitle>Upload</PageTitle>
+
+<EditForm Model="Property">
+	<DataAnnotationsValidator />
+	<ValidationSummary />
+	<div class="container-fluid bg-white">
+		<div class="d-grid gap-2 col-5 mx-auto bg-bg-dark">
+			<div class="mb-3">
+				<label class="form-label">Address</label>
+				<InputText type="text" @bind-Value="Property.Address" class="form-control"></InputText>
+			</div>
+			<div class="mb-3">
+				<div class="row align-items-start">
+					<div class="col">
+						<label class="form-label">Avaiable From:</label>
+						<InputDate @bind-Value="Property.AvaiableFrom" class="form-control col-3"></InputDate>
+					</div>
+					<div class="col">
+						<label class="form-label">Until:</label>
+						<InputDate @bind-Value="Property.AvaiableUntil" class="form-control col-3"></InputDate>
+					</div>
+				</div>
+			</div>
+			<div class="mb-3">
+				<div class="row">
+					<div class="col">
+						<label class="form-label">Type</label>
+						<InputSelect type="text" @bind-Value="Property.Type" TValue="PropertyType" class="form-control">
+							@foreach (var type in Enum.GetValues<PropertyType>())
+							{
+								<option>@type</option>
+							}
+						</InputSelect>
+					</div>
+					<div class="col">
+						<label class="form-label">Purpose</label>
+						<InputSelect type="text" @bind-Value="Property.OfferPurpose" class="form-control">
+							@foreach (var type in Enum.GetValues<OfferPurpose>())
+							{
+								<option>@type</option>
+							}
+						</InputSelect>
+					</div>
+				</div>
+			</div>
+			<div class="mb-3">
+				<div class="row align-items-center">
+					<div class="col">
+						<label class="form-label">Avaiable bedrooms</label>
+						<InputNumber type="text" @bind-Value="Property.BedroomsAvaiable" class="form-control"></InputNumber>
+					</div>
+					<div class="col">
+						<br />
+						<div class="form-check form-switch align-items-md-center">
+							<InputCheckbox @bind-Value="Property.OwnerOccupied" class="form-check-input"></InputCheckbox>
+							<label class="form-check-label align-text-end">Owner Occupied</label>
+						</div>
+					</div>
+				</div>
+			</div>
+			<div class="mb-3">
+				<label class="form-label">Facilities</label>
+				@foreach (var facility in Facilities)
+				{
+					<InputText typeof="text" @bind-Value="facility.Text" class="form-control"></InputText>
+				}
+			</div>
+			<div class="mb-3">
+				<label class="form-label">Photos</label>
+				<div class="row">
+					@foreach (var photo in Photos)
+					{
+						<div class="row">
+							<div class="col m-1 ">
+								<InputFile @bind-Value="photo.Data" class="form-control"></InputFile>
+							</div>
+							<div class="col-1 m-1">
+								<button type="button" class="btn bg-opacity-25 bg-black oi oi-plus @(photo.Data.Length == 0 ?"disabled": string.Empty)" @onclick="() => Photos.Add(new())"></button>
+							</div>
+						</div>
+					}
+				</div>
+			</div>
+			<div class="container-fluid bg-white">
+				<div class="d-grid">
+					<button type="submit" class="btn btn-primary btn-lg">Submit</button>
+				</div>
+			</div>
+		</div>
+	</div>
+</EditForm>
+
+
+@code {
+
+	Property? Property { get; } = new("", OfferPurpose.Rent, PropertyType.Appartment, 0);
+
+	List<Photo> Photos { get; } = new() { new() };
+
+	List<Facility> Facilities { get; } = new() { new("") };
+
+	protected override Task OnInitializedAsync()
+	{
+		Property.AvaiableFrom = DateTime.Now;
+		return base.OnInitializedAsync();
+	}
+}
