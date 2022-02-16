@@ -18,5 +18,15 @@ public class Photo : Identifiable
     [ForeignKey(nameof(Property))]
     public long PropertyId { get; set; }
 
-    public Property Property { get; set; } = null!;
+
+    private Property? _prop;
+    public Property Property
+    {
+        get => _prop!;
+        set
+        {
+            _prop = value ?? throw new ArgumentException("Cannot be null", nameof(Property));
+            PropertyId = value.Id;
+        }
+    }
 }

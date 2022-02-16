@@ -9,11 +9,9 @@ public class Facility : Identifiable
     {
     }
 
-    public Facility(string text, Property property)
+    public Facility(string text)
     {
         Text = text;
-        Property = property;
-        PropertyId = property.Id;
     }
 
     [Required]
@@ -23,5 +21,13 @@ public class Facility : Identifiable
     [ForeignKey(nameof(Property))]
     public long PropertyId { get; set; }
 
-    public Property Property { get; set; } = null!;
+    private Property _prop;
+    public Property Property
+    {
+        get => _prop; set
+        {
+            _prop = value ?? throw new ArgumentNullException(nameof(Property));
+            PropertyId = value.Id;
+        }
+    }
 }

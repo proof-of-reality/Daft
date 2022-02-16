@@ -36,10 +36,10 @@ static void AddTestData(SqlServerContext context)
     var otavio = new Client("otoavbio", "nunes", "vojnedofin@gmail.com", "12876137987");
     var bruna = new Client("bruna", "albuqyerer", "bruna@gmail.com", "1333308233");
 
-    var flat = new Property("a274", RentCategory.Rent, PropertyType.Flat, 370);
+    var flat = new Property("a274", OfferPurpose.Rent, PropertyType.Flat, 370);
     otavio.Add(flat);
 
-    var appartment = new Property("d15a274", RentCategory.Rent, PropertyType.Appartment, 590);
+    var appartment = new Property("d15a274", OfferPurpose.Rent, PropertyType.Appartment, 590);
     bruna.Add(appartment);
 
     context.Clients.Add(otavio);

@@ -3,9 +3,9 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace Core.Models;
 
-public enum RentCategory
+public enum OfferPurpose
 {
-    Buy,
+    Sell,
     Rent,
     Share,
 }
@@ -23,10 +23,10 @@ public class Property : Identifiable
     {
     }
 
-    public Property(string address, RentCategory category, PropertyType type, decimal price)
+    public Property(string address, OfferPurpose category, PropertyType type, decimal price)
     {
         Address = address;
-        Category = category;
+        OfferPurpose = category;
         Type = type;
         Price = price;
     }
@@ -37,7 +37,7 @@ public class Property : Identifiable
     public string Address { get; set; } = string.Empty;
 
     [Required]
-    public RentCategory Category { get; set; }
+    public OfferPurpose OfferPurpose { get; set; }
 
     [Required]
     public PropertyType Type { get; set; }
@@ -52,7 +52,7 @@ public class Property : Identifiable
     public DateTime AvaiableFrom { get; set; }
 
     [Required]
-    public DateTime AvaiableUntil { get; set; }
+    public DateTime? AvaiableUntil { get; set; }
 
     [Required]
     public bool OwnerOccupied { get; set; }
@@ -73,7 +73,11 @@ public class Property : Identifiable
     public IReadOnlyCollection<Photo> Photos => _photos;
     public IReadOnlyCollection<Facility> Facilities => _facilities;
 
-    public void Add(Photo photo) => _photos.Add(photo);
+    public void Add(Photo photo)
+    {
+        photo.Property = this;
+        _photos.Add(photo);
+    }
 
     public void Add(Facility facility) => _facilities.Add(facility);
 }
