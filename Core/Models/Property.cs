@@ -1,5 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using Core.Interfaces;
 
 namespace Core.Models;
 
@@ -17,7 +18,7 @@ public enum PropertyType
     Appartment
 }
 
-public class Property : Identifiable
+public class Property : Identifiable, IAdd<Photo>, IAdd<Facility>
 {
     private Property()
     {
@@ -79,5 +80,9 @@ public class Property : Identifiable
         _photos.Add(photo);
     }
 
-    public void Add(Facility facility) => _facilities.Add(facility);
+    public void Add(Facility facility)
+    {
+        facility.Property = this;
+        _facilities.Add(facility);
+    } 
 }

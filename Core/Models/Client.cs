@@ -1,8 +1,9 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using Core.Interfaces;
 
 namespace Core.Models;
 
-public sealed class Client : User
+public sealed class Client : User, IAdd<Property>
 {
     private Client() : base(null!, null!)
     {
