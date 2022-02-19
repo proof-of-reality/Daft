@@ -4,6 +4,27 @@
 
 @inherits ComponentAPI
 
+<div class="row">
+	<div class="col">
+		<div class="input-group input-group" style="min-height:70px">
+			<span class="input-group-text "><i class="oi oi-magnifying-glass"></i><small>Dublin City</small></span>
+			<input type="text" class="form-control col-3">
+		</div>
+	</div>
+	<div class="col">
+		<div class="input-group input-group" style="min-height:70px">
+			<input type="text" class="form-control" placeholder="Price">
+			<select type="text" class="form-control">
+				<option>Any room</option>
+				<option>Single</option>
+				<option>Double room</option>
+				<option>Twin</option>
+				<option>Share</option>
+			</select>
+		</div>
+	</div>
+</div>
+<br />
 <div class="container">
 	@foreach (var item in _properties)
 	{
@@ -12,7 +33,7 @@
 				<div class="col-md-8">
 					<picture>
 						<source srcset="..." type="image/svg+xml+webp">
-						<img src="data:image/webp;base64, @((string)item.Photos.First())" class="img-fluid img-thumbnail" style="min-height:300px;min-width:480px" alt="photo">
+						<img src="data:image/webp;base64, @((string)item.Photos.First())" class="img-fluid" style="min-height:300px;min-width:480px" alt="photo">
 					</picture>
 				</div>
 				<div class="col-md-4">
@@ -30,6 +51,7 @@
 
 @code {
 
+	string rooms;
 	private List<Property> _properties = new();
 
 	protected override async Task OnInitializedAsync()

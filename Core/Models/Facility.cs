@@ -11,7 +11,7 @@ public class Facility : Identifiable
 
     public Facility(string text)
     {
-        Text = text;
+        Text = text ?? throw new ArgumentException("{0} cannot be null", nameof(text));
     }
 
     [Required]
@@ -20,6 +20,7 @@ public class Facility : Identifiable
 
     [ForeignKey(nameof(Property))]
     public long PropertyId { get; set; }
+
 
     private Property _prop;
     public Property Property

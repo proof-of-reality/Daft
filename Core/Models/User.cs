@@ -8,8 +8,8 @@ public class User : Identifiable
 
     public User(string email, string password)
     {
-        Email = email;
-        Password = password;
+        Email = email ?? throw new ArgumentException("{0} cannot be null", nameof(email));
+        Password = password ?? throw new ArgumentException("{0} cannot be null", nameof(password));
     }
 
     [Required]

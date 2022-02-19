@@ -6,9 +6,11 @@ namespace Core.Models;
 public class Photo : Identifiable
 {
 
-    private Photo() { }
-
     public Photo(string path) : this(File.ReadAllBytes(path))
+    {
+    }
+
+    public Photo() : this(Array.Empty<byte>())
     {
     }
 

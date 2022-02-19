@@ -2,7 +2,7 @@
 
 namespace Core.Models;
 
-public class Client : User
+public sealed class Client : User
 {
     private Client() : base(null!, null!)
     {
@@ -10,8 +10,8 @@ public class Client : User
 
     public Client(string firstName, string lastName, string email, string pass) : base(email, pass)
     {
-        FirstName = firstName;
-        LastName = lastName;
+        FirstName = firstName ?? throw new ArgumentException("{0} cannot be null", nameof(firstName));
+        LastName = lastName ?? throw new ArgumentException("{0} cannot be null", nameof(lastName));
     }
 
     [Required]
@@ -25,7 +25,7 @@ public class Client : User
     public string LastName { get; set; } = string.Empty;
 
 
-    private List<Property> _properties = new List<Property>();
+    private List<Property> _properties = new();
     public IReadOnlyCollection<Property> Properties => _properties;
 
     public void Add(Property prop)
