@@ -1,8 +1,62 @@
 ﻿@page "/"
+@using Core.Models
+@using System.Text.Json;
 
-<PageTitle>Index</PageTitle>
+@inherits ComponentAPI
 
-<div class="top-row px-4">
-    <a class="font-weight-bold link-dark" href="properties">Properties</a>
+<div class="container">
+	@foreach (var item in _properties)
+	{
+		<div class="card mb-3" style="max-width: 740px;min-height:300px;min-width:480px">
+			<div class="row g-0">
+				<div class="col-md-8">
+					<picture>
+						<source srcset="..." type="image/svg+xml+webp">
+						<img src="data:image/webp;base64, @((string)item.Photos.First())" class="img-fluid img-thumbnail" style="min-height:300px;min-width:480px" alt="photo">
+					</picture>
+				</div>
+				<div class="col-md-4">
+					<div class="card-body align-content-center">
+						<h5 class="card-title fw-bold pt-5">€@item.Price per month</h5>
+						<p class="card-text mb-1">@item.Address</p>
+						<p class="card-text align-text-top"><small class="text-muted">@item.OfferPurpose - @item.Type </small></p>
+					</div>
+				</div>
+			</div>
+		</div>
+		<br />
+	}
 </div>
-<SurveyPrompt Title="How is Blazor working for you?" />
+
+@code {
+
+	private List<Property> _properties = new();
+
+	protected override async Task OnInitializedAsync()
+	{
+		//using var client = GetClient();
+		//_properties = await client.GetFromJsonAsync<List<Property>>("Properties") ?? new List<Property>();
+
+		//just for testing
+		_properties = new()
+			{
+				new("Smithfield", OfferPurpose.Share, PropertyType.Appartment, 500),
+				new("D08 A245", OfferPurpose.Share, PropertyType.Appartment, 340),
+				new("D12 V271", OfferPurpose.Share, PropertyType.Flat, 390),
+				new("Temple bar D2 A456", OfferPurpose.Share, PropertyType.Appartment, 700),
+				new("D08 A245", OfferPurpose.Share, PropertyType.House, 340),
+				new("D12 V271", OfferPurpose.Share, PropertyType.Appartment, 390),
+			};
+		_properties.ForEach(p =>
+		{
+			var src = $"wwwroot/Photos/{Random.Shared.Next(1, 6)}.webp";
+			var data = File.ReadAllBytes(src);
+			var photo = new Photo(data);
+			p.Add(photo);
+			var test = (string)photo;
+		});
+		// test-end
+
+		await base.OnInitializedAsync();
+	}
+}
