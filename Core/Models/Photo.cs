@@ -5,6 +5,18 @@ namespace Core.Models;
 
 public class Photo : Identifiable
 {
+
+    private Photo() { }
+
+    public Photo(string path) : this(File.ReadAllBytes(path))
+    {
+    }
+
+    public Photo(byte[] data)
+    {
+        Data = data;
+    }
+
     [Required]
     [MinLength(3)]
     [MaxLength(10)]
@@ -20,6 +32,7 @@ public class Photo : Identifiable
 
 
     private Property? _prop;
+
     public Property Property
     {
         get => _prop!;
@@ -29,4 +42,6 @@ public class Photo : Identifiable
             PropertyId = value.Id;
         }
     }
+
+    public static explicit operator string(Photo p) => Convert.ToBase64String(p.Data);
 }
