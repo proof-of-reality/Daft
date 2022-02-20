@@ -52,7 +52,6 @@ public class Property : Identifiable, IAdd<Photo>, IAdd<Facility>
     [Required]
     public DateTime AvaiableFrom { get; set; }
 
-    [Required]
     public DateTime? AvaiableUntil { get; set; }
 
     [Required]
