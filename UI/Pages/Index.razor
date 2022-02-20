@@ -1,4 +1,5 @@
 ﻿@page "/"
+@page "/{Purpose}"
 @using Core.Models
 @using System.Text.Json;
 
@@ -9,7 +10,7 @@
 	<div class="col">
 		<div class="input-group input-group" style="min-height:70px">
 			<span class="input-group-text "><i class="oi oi-magnifying-glass"></i><small>Dublin City</small></span>
-			<input type="text" class="form-control col-3">
+			<input type="text" class="form-control col-3" @bind="Purpose">
 		</div>
 	</div>
 	<div class="col">
@@ -52,11 +53,30 @@
 
 @code {
 
-	private List<Property> _properties = new();
+	[Parameter] public string Purpose { get; set; }
+
+	List<Property> _properties;
+
+	private static List<Property> _props = new()
+		{
+			new("Smithfield", OfferPurpose.Share, PropertyType.Appartment, 500),
+			new("D08 A245", OfferPurpose.Sell, PropertyType.Appartment, 340),
+			new("D12 V271", OfferPurpose.Share, PropertyType.Flat, 390),
+			new("Temple bar D2 A456", OfferPurpose.Share, PropertyType.Appartment, 700),
+			new("D08 A245", OfferPurpose.Rent, PropertyType.House, 340),
+			new("D12 V271", OfferPurpose.Rent, PropertyType.Appartment, 390),
+		};
 
 	void GoTo(Property p)
 	{
 		Navigator.NavigateTo($"/details/{p.Id}");
+	}
+
+	protected override Task OnAfterRenderAsync(bool firstRender)
+	{
+		_properties = new(_props.Where(p => Purpose == null || p.OfferPurpose.ToString().Equals(Purpose)).ToList());
+		StateHasChanged();
+		return base.OnAfterRenderAsync(firstRender);
 	}
 
 	protected override async Task OnInitializedAsync()
@@ -65,23 +85,16 @@
 		//_properties = await client.GetFromJsonAsync<List<Property>>("Properties") ?? new List<Property>();
 
 		//just for testing
-		_properties = new()
-			{
-				new("Smithfield", OfferPurpose.Share, PropertyType.Appartment, 500),
-				new("D08 A245", OfferPurpose.Share, PropertyType.Appartment, 340),
-				new("D12 V271", OfferPurpose.Share, PropertyType.Flat, 390),
-				new("Temple bar D2 A456", OfferPurpose.Share, PropertyType.Appartment, 700),
-				new("D08 A245", OfferPurpose.Share, PropertyType.House, 340),
-				new("D12 V271", OfferPurpose.Share, PropertyType.Appartment, 390),
-			};
-		_properties.ForEach(p =>
+		_props.ForEach(p =>
 		{
 			var src = $"wwwroot/Photos/{Random.Shared.Next(1, 6)}.webp";
 			var data = File.ReadAllBytes(src);
 			var photo = new Photo(data);
 			p.Add(photo);
-			var test = (string)photo;
 		});
+
+		_properties = new(_props.ToList());
+
 		// test-end
 
 		await base.OnInitializedAsync();

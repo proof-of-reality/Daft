@@ -49,7 +49,7 @@
 		<br />
 
 		<h6 class="fw-bold">Email: <span class="fw-normal">@property.Owner.Email</span></h6>
-		<button @onclick="@(() => Modal.Show<SendEmailModal>("Send"))" class="btn btn-primary">Email</button>
+		<button @onclick="@(() => Modal.Show<SendEmailModal>($"Email {property.Owner.Email}"))" class="btn btn-primary">Email</button>
 	</div>
 </div>
 
