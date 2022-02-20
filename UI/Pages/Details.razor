@@ -1,0 +1,107 @@
+﻿@*@page "/details/{prop:string}"*@
+@page "/details/{Id:long}"
+
+@using Core.Models
+@using System.Text.Json;
+
+<PageTitle>Details</PageTitle>
+
+<div class="container">
+	<div class="row g-0">
+		<div class="col-md-8">
+			<picture>
+				<source srcset="/Photos" type="image/svg+xml+webp">
+				<img src="data:image/webp;base64, @((string)property.Photos.First())" class="img-fluid" style="min-height:300px;min-width:480px" alt="photo">
+			</picture>
+		</div>
+	</div>
+</div>
+<div class="row bg-white">
+	<div class="container p-5">
+		<h4 class="fw-bold ">€@property.Price per month</h4>
+		<h6 class="mb-1">@property.Address</h6>
+		<h6 class="align-text-top"><small class="text-muted">@property.OfferPurpose - @property.Type </small></h6>
+		<br />
+		<hr class="bg-black border-2 border-top ">
+		<h4>Property Overview</h4>
+		<br />
+
+		<h6 class="fw-bold">Bedrooms Avaiable: <span class="fw-normal">@property.BedroomsAvaiable</span></h6>
+		<h6 class="fw-bold">Avaiable From:  <span class="fw-normal">@property.AvaiableFrom.ToString("dd/MM/yyyy")</span></h6>
+		<h6 class="fw-bold">Avaiable For:  <span class="fw-normal">@AvaiableFor()</span></h6>
+		<h6 class="fw-bold">Owner Occupied:  <span class="fw-normal">@(property.OwnerOccupied ? "Yes": "No")</span></h6>
+		<h6 class="fw-bold">Preference:  <span class="fw-normal">@(property.Preference is null ? "Male/Female" : property.Preference.Value ? "Male" : "Female")</span></h6>
+		<br />
+		<hr class="bg-black border-2 border-top ">
+		<br />
+
+		<h4>Facilities</h4>
+		<br />
+		<ul>
+			@foreach (var item in property.Facilities)
+			{
+				<li>@item.Text</li>
+			}
+		</ul>
+		<br />
+		<hr class="bg-black border-2 border-top ">
+		<br />
+		<h4>Contact Details</h4>
+		<br />
+
+		<h6 class="fw-bold">Email: <span class="fw-normal">@property.Owner.Email</span></h6>
+	</div>
+</div>
+
+@code {
+	Property property;
+
+	[Parameter] public long Id { get; set; }
+
+	string AvaiableFor()
+	{
+		var days = ((property.AvaiableUntil ?? DateTime.Now.AddYears(1)) - property.AvaiableFrom).TotalDays;
+		return days switch
+		{
+			(<= 31) => $"{days} days",
+			(> 31 and < 365) => $"{(int)Math.Round(days / 30)} months",
+			_ => "1+ years"
+		};
+	}
+
+	async Task GetFacilities()
+	{
+		// fake calling to API
+		await Task.Delay(1000);
+
+		property.Add(new Facility("Shower"));
+		property.Add(new Facility("Garage"));
+		property.Add(new Facility("Heater"));
+	}
+
+	protected override async Task OnAfterRenderAsync(bool firstRender)
+	{
+		if (!firstRender) return;
+		await GetFacilities();
+		StateHasChanged();
+		await base.OnAfterRenderAsync(firstRender);
+	}
+
+	protected override Task OnInitializedAsync()
+	{
+		// simulate searching database
+		// property = await client.GetByAsync(Id);
+
+		property ??= new Property("Wynnefield Park, Wynnefield Road, Rathmine, Rathmines, Dublin 6", OfferPurpose.Share, PropertyType.Appartment, 400);
+		property.BedroomsAvaiable = 2;
+		property.AvaiableFrom = DateTime.Now;
+		property.AvaiableUntil = property.AvaiableFrom.AddMonths(3);
+
+		property.Add(new Photo($"wwwroot/Photos/{Random.Shared.Next(1, 6)}.webp"));
+		property.Add(new Photo($"wwwroot/Photos/{Random.Shared.Next(1, 6)}.webp"));
+
+		property.Owner = new Core.Models.Client("", "", "username@gmail.com", "password");
+
+		return base.OnInitializedAsync();
+	}
+}
