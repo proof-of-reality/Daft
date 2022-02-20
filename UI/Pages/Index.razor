@@ -3,6 +3,7 @@
 @using System.Text.Json;
 
 @inherits ComponentAPI
+@inject NavigationManager Navigator
 
 <div class="row">
 	<div class="col">
@@ -28,11 +29,11 @@
 <div class="container">
 	@foreach (var item in _properties)
 	{
-		<div class="card mb-3" style="max-width: 740px;min-height:300px;min-width:480px">
+		<div role="button" @onclick="() => GoTo(item)" class="card mb-3" style="max-width: 740px;min-height:300px;min-width:480px">
 			<div class="row g-0">
 				<div class="col-md-8">
 					<picture>
-						<source srcset="..." type="image/svg+xml+webp">
+						<source srcset="/Photos" type="image/svg+xml+webp">
 						<img src="data:image/webp;base64, @((string)item.Photos.First())" class="img-fluid" style="min-height:300px;min-width:480px" alt="photo">
 					</picture>
 				</div>
@@ -51,8 +52,12 @@
 
 @code {
 
-	string rooms;
 	private List<Property> _properties = new();
+
+	void GoTo(Property p)
+	{
+		Navigator.NavigateTo($"/details/{p.Id}");
+	}
 
 	protected override async Task OnInitializedAsync()
 	{
