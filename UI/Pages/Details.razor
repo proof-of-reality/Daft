@@ -1,5 +1,4 @@
-﻿@*@page "/details/{prop:string}"*@
-@page "/details/{Id:long}"
+﻿@page "/details/{Id:long}"
 
 @using Core.Models
 @using System.Text.Json;
@@ -50,13 +49,16 @@
 		<br />
 
 		<h6 class="fw-bold">Email: <span class="fw-normal">@property.Owner.Email</span></h6>
+		<button @onclick="@(() => Modal.Show<SendEmailModal>("Send"))" class="btn btn-primary">Email</button>
 	</div>
 </div>
 
 @code {
+
 	Property property;
 
 	[Parameter] public long Id { get; set; }
+	[CascadingParameter] public IModalService Modal { get; set; }
 
 	string AvaiableFor()
 	{

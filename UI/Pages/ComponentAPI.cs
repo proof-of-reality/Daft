@@ -2,7 +2,7 @@
 
 namespace UI.Pages;
 
-public abstract class ComponentAPI : ComponentBase
+public class ComponentAPI : ComponentBase
 {
     [Inject] IHttpClientFactory _httpFactory { get; set; }
 

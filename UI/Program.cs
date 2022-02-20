@@ -1,3 +1,4 @@
+using Blazored.Modal;
 using Microsoft.Extensions.DependencyInjection;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -5,6 +6,7 @@ var builder = WebApplication.CreateBuilder(args);
 // Add services to the container.
 builder.Services.AddHttpClient();
 builder.Services.AddRazorPages();
+builder.Services.AddBlazoredModal();
 builder.Services.AddServerSideBlazor();
 builder.Services
     .AddHttpClient("api", config => config.BaseAddress = new Uri("https://localhost:7255/api/"))
