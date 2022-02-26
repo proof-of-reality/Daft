@@ -12,6 +12,7 @@ public class UsersController : ControllerAsync<User>
 
     public override Task<ActionResult<bool>> Post(User entity, CancellationToken token)
     {
+        if (!ModelState.IsValid) return Task.FromResult((ActionResult<bool>)BadRequest(ModelState.ValidationState));
         EncryptPassword(entity);
         return base.Post(entity, token);
     }
@@ -24,6 +25,7 @@ public class UsersController : ControllerAsync<User>
 
     public override Task<ActionResult<bool>> Patch(User entity, CancellationToken token)
     {
+        if (!ModelState.IsValid) return Task.FromResult((ActionResult<bool>)BadRequest(ModelState.ValidationState));
         EncryptPassword(entity);
         return base.Patch(entity, token);
     }
