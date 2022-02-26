@@ -10,10 +10,6 @@ public class Photo : Identifiable
     {
     }
 
-    public Photo() : this(Array.Empty<byte>())
-    {
-    }
-
     public Photo(byte[] data)
     {
         Data = data;

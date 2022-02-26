@@ -6,5 +6,10 @@ public class ComponentAPI : ComponentBase
 {
     [Inject] IHttpClientFactory _httpFactory { get; set; }
 
-    protected HttpClient GetClient() => _httpFactory.CreateClient("api");
+    protected HttpClient Endpoint(string route)
+    {
+        var client = _httpFactory.CreateClient("api");
+        client.BaseAddress = new Uri(client.BaseAddress + route);
+        return client;
+    }
 }

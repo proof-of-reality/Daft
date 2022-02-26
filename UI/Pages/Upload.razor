@@ -2,6 +2,8 @@
 
 @using Core.Models
 @using UI.Pages
+@using System.Text.Json
+@using System.Text.Json.Serialization
 
 @inherits ComponentAPI
 @inject NavigationManager Navigator
@@ -9,7 +11,7 @@
 <h3>Upload</h3>
 <PageTitle>Upload</PageTitle>
 
-<EditForm Model="Property">
+<EditForm Model="Property" OnSubmit="DoUpload">
 	<DataAnnotationsValidator />
 	<ValidationSummary />
 	<div class="container-fluid bg-white">
@@ -77,17 +79,9 @@
 			<div class="mb-3">
 				<label class="form-label">Photos</label>
 				<div class="row">
-					@foreach (var photo in Photos)
-					{
-						<div class="row">
-							<div class="col m-1 ">
-								<InputFile @bind-Value="photo.Data" class="form-control"></InputFile>
-							</div>
-							<div class="col-1 m-1">
-								<button type="button" class="btn bg-opacity-25 bg-black oi oi-plus @(photo.Data.Length == 0 ? "disabled": string.Empty)" @onclick="@(() => Photos.Add(new()))"></button>
-							</div>
-						</div>
-					}
+					<div class="col m-1 ">
+						<InputFile OnChange="e => LoadFiles(e)" multiple class="form-control"></InputFile>
+					</div>
 				</div>
 			</div>
 			<div class="container-fluid bg-white">
@@ -104,9 +98,36 @@
 
 	Property? Property { get; } = new("", OfferPurpose.Rent, PropertyType.Appartment, 0);
 
-	List<Photo> Photos { get; } = new() { new() };
+	List<Photo> Photos { get; } = new();
 
 	List<Facility> Facilities { get; } = new() { new("") };
+
+	async ValueTask LoadFiles(InputFileChangeEventArgs e)
+	{
+		var files = e.GetMultipleFiles();
+		foreach (var file in files)
+		{
+			var photo = new Photo(new byte[file.Size]);
+
+			using var stream = file.OpenReadStream(maxAllowedSize: 10 * 1024 * 1024);
+			await stream.ReadAsync(photo.Data, 0, (int)file.Size);
+			Photos.Add(photo);
+		}
+	}
+
+	async Task DoUpload()
+	{
+		if (Property is null) return;
+
+		Photos.ForEach(Property.Add);
+		Facilities.ForEach(Property.Add);
+
+		using var api = this.Endpoint("Properties");
+		var response = await api.PostAsJsonAsync(string.Empty, Property!, new JsonSerializerOptions { ReferenceHandler = ReferenceHandler.IgnoreCycles });
+
+		response.EnsureSuccessStatusCode();
+		this.Navigator.NavigateTo("/");
+	}
 
 	protected override Task OnInitializedAsync()
 	{

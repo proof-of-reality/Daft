@@ -3,7 +3,7 @@ using Core.Interfaces;
 
 namespace Core.Models;
 
-public sealed class Client : User, IAdd<Property>
+public  class Client : User, IAdd<Property>
 {
     private Client() : base(null!, null!)
     {

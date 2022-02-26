@@ -9,7 +9,7 @@
 	<div class="row g-0">
 		<div class="col-md-8">
 			<picture>
-				<source srcset="/Photos" type="image/svg+xml+webp">
+				<source srcset="wwwroot/Photos" type="image/svg+xml+webp">
 				<img src="data:image/webp;base64, @((string)property.Photos.First())" class="img-fluid" style="min-height:300px;min-width:480px" alt="photo">
 			</picture>
 		</div>
@@ -29,7 +29,7 @@
 		<h6 class="fw-bold">Avaiable From:  <span class="fw-normal">@property.AvaiableFrom.ToString("dd/MM/yyyy")</span></h6>
 		<h6 class="fw-bold">Avaiable For:  <span class="fw-normal">@AvaiableFor()</span></h6>
 		<h6 class="fw-bold">Owner Occupied:  <span class="fw-normal">@(property.OwnerOccupied ? "Yes": "No")</span></h6>
-		<h6 class="fw-bold">Preference:  <span class="fw-normal">@(property.Preference is null ? "Male/Female" : property.Preference.Value ? "Male" : "Female")</span></h6>
+		<h6 class="fw-bold">Preference:  <span class="fw-normal">@Preference</span></h6>
 		<br />
 		<hr class="bg-black border-2 border-top ">
 		<br />
@@ -54,12 +54,14 @@
 </div>
 
 @code {
-
 	Property property;
 
 	[Parameter] public long Id { get; set; }
 	[CascadingParameter] public IModalService Modal { get; set; }
 
+	Task? _getFacilitiesTask;
+
+	string Preference => !property.Preference.HasValue ? "Male/Female" : property.Preference.Value ? "Male" : "Female";
 	string AvaiableFor()
 	{
 		var days = ((property.AvaiableUntil ?? DateTime.Now.AddYears(1)) - property.AvaiableFrom).TotalDays;
@@ -84,7 +86,7 @@
 	protected override async Task OnAfterRenderAsync(bool firstRender)
 	{
 		if (!firstRender) return;
-		await GetFacilities();
+		await (_getFacilitiesTask ?? Task.CompletedTask);
 		StateHasChanged();
 		await base.OnAfterRenderAsync(firstRender);
 	}
@@ -93,6 +95,7 @@
 	{
 		// simulate searching database
 		// property = await client.GetByAsync(Id);
+		_getFacilitiesTask = GetFacilities();
 
 		property ??= new Property("Wynnefield Park, Wynnefield Road, Rathmine, Rathmines, Dublin 6", OfferPurpose.Share, PropertyType.Appartment, 400);
 		property.BedroomsAvaiable = 2;

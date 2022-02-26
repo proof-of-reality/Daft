@@ -44,9 +44,11 @@ public class Property : Identifiable, IAdd<Photo>, IAdd<Facility>
     public PropertyType Type { get; set; }
 
     [Required]
+    [Range(50,double.MaxValue)]
     public decimal Price { get; set; }
 
     [Required]
+    [Range(1, double.MaxValue)]
     public short BedroomsAvaiable { get; set; }
 
     [Required]

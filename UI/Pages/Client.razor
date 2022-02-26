@@ -1,6 +1,8 @@
 ﻿@page "/user"
 @using Core.Models;
+@using System.ComponentModel.DataAnnotations
 
+@inherits ComponentAPI
 @inject NavigationManager Navigator
 
 <EditForm Model="user" OnSubmit="SignUp">
@@ -26,7 +28,7 @@
 			</div>
 			<div class="mb-3">
 				<label class="form-label">Confirm Password</label>
-				<InputText type="password" @bind-Value="confirmation" class="form-control"></InputText>
+				<InputText type="password" @bind-Value="user.Confirmation" class="form-control"></InputText>
 			</div>
 			<div class="mb-3">
 				<button type="submit" class="btn btn-primary btn-lg" @onclick="SignUp">Sign Up</button>
@@ -36,12 +38,35 @@
 </EditForm>
 
 @code {
-	private Core.Models.Client user = new Core.Models.Client(string.Empty, string.Empty, string.Empty, string.Empty);
-	string? confirmation;
+	private ClientDTO user = new ClientDTO();
 
-	void SignUp()
+
+	async Task SignUp()
 	{
 		//TODO: validate and insert client into database
+		if (user.Confirmation is null || !user.Confirmation.Equals(user.Password)) return;
+		using var api = Endpoint("Users");
+
+		var response = await api.PostAsJsonAsync(string.Empty, user);
+		if (response.StatusCode == System.Net.HttpStatusCode.BadRequest) return;
+
 		Navigator.NavigateTo("/upload");
+	}
+
+	class ClientDTO : Core.Models.Client
+	{
+
+		public ClientDTO() : this(string.Empty, string.Empty, string.Empty, string.Empty)
+		{
+		}
+
+		public ClientDTO(string firstName, string lastName, string email, string pass) : base(firstName, lastName, email, pass)
+		{
+		}
+
+
+		[Required]
+		[MinLength(6)]
+		public string Confirmation { get; set; }
 	}
 }

@@ -36,9 +36,9 @@
 
 	private async Task login()
 	{
-		using var client = GetClient();
+		using var api = Endpoint("Users");
 
-		var response = await client.PostAsJsonAsync("Users/Login", user);
+		var response = await api.PostAsJsonAsync("/Login", user);
 		response.EnsureSuccessStatusCode();
 
 		if (await response.Content.ReadFromJsonAsync<bool>()) Navigator.NavigateTo("/");

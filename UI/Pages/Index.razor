@@ -28,7 +28,7 @@
 </div>
 <br />
 <div class="container">
-	@foreach (var item in _properties)
+	@foreach (var item in (_properties ?? new List<Property>() { new("", OfferPurpose.Rent, PropertyType.Appartment, 0) }))
 	{
 		<div role="button" @onclick="() => GoTo(item)" class="card mb-3" style="max-width: 740px;min-height:300px;min-width:480px">
 			<div class="row g-0">
@@ -81,8 +81,10 @@
 
 	protected override async Task OnInitializedAsync()
 	{
-		//using var client = GetClient();
-		//_properties = await client.GetFromJsonAsync<List<Property>>("Properties") ?? new List<Property>();
+		using var api = Endpoint("Properties");
+		_properties = new(_props);
+		//var props = (await api.GetFromJsonAsync<List<Property>>(string.Empty));
+		//if (props.Any()) _properties = props;
 
 		//just for testing
 		_props.ForEach(p =>
