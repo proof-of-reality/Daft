@@ -12,9 +12,20 @@ public class UsersController : ControllerAsync<User>
 
     public override Task<ActionResult<bool>> Post(User entity, CancellationToken token)
     {
-        //TODO: encriptar senha
-        entity.Password = "fjnefgehnjofieknml";
+        EncryptPassword(entity);
         return base.Post(entity, token);
+    }
+
+    private static void EncryptPassword(User user)
+    {
+        var encrypted = BCrypt.Net.BCrypt.HashPassword(user.Password);
+        user.Password = encrypted;
+    }
+
+    public override Task<ActionResult<bool>> Patch(User entity, CancellationToken token)
+    {
+        EncryptPassword(entity);
+        return base.Patch(entity, token);
     }
 
     [HttpPost("Login")]
