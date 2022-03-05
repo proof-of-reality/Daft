@@ -1,4 +1,7 @@
-﻿@inherits LayoutComponentBase
+﻿@using Microsoft.AspNetCore.Components.Server.ProtectedBrowserStorage
+@inherits LayoutComponentBase
+
+@inject ProtectedLocalStorage BrowserStorage
 
 <PageTitle>Daft</PageTitle>
 
@@ -7,7 +10,7 @@
 		<div class="top-row px-8 bg-white">
 			<div class="container">
 				<div class="d-flex align-items-start">
-					<a href="/"><img src="Photos/logo.svg" class="link" alt="Daft.ie" style="width:5rem "/></a>
+					<a href="/"><img src="Photos/logo.svg" class="link" alt="Daft.ie" style="width:5rem " /></a>
 
 					<a href="/Sell" class="text-black text-decoration-none">Sell</a>
 					<a href="/Rent" class="text-black text-decoration-none">Rent</a>
@@ -15,8 +18,16 @@
 				</div>
 			</div>
 
-			<a href="/user" class="text-black text-decoration-none">Place Ad</a>
-			<a href="/login" class="text-black text-decoration-none">Sign in</a>
+			@if (true)
+			{
+				var href = "/upload";
+				if (_user is null)
+				{
+					<a href="/login" class="text-black text-decoration-none">Sign in</a>
+					href = "/user";
+				}
+				<a href="@href" class="text-black text-decoration-none">Place Ad</a>
+			}
 		</div>
 
 		<article class="content px-12">
@@ -24,3 +35,19 @@
 		</article>
 	</main>
 </div>
+
+@code {
+
+	Core.Models.User? _user;
+
+	protected override async Task OnAfterRenderAsync(bool firstRender)
+	{
+		var user = (await BrowserStorage.GetAsync<Core.Models.User>(nameof(Core.Models.User).ToLower())).Value;
+		if (_user is null && user is not null)
+		{
+			_user = user;
+			StateHasChanged();
+		}
+		await base.OnAfterRenderAsync(firstRender);
+	}
+}

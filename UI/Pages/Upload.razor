@@ -71,7 +71,7 @@
 			</div>
 			<div class="mb-3">
 				<label class="form-label">Facilities</label>
-				@foreach (var facility in Facilities)
+				@foreach (var facility in Property.Facilities)
 				{
 					<InputText typeof="text" @bind-Value="facility.Text" class="form-control"></InputText>
 				}
@@ -80,8 +80,16 @@
 				<label class="form-label">Photos</label>
 				<div class="row">
 					<div class="col m-1 ">
-						<InputFile OnChange="e => LoadFiles(e)" multiple class="form-control"></InputFile>
+						<InputFile @onclick="() => Property.Photos.ToList().ForEach(Property.Remove)" OnChange="async e => await LoadFiles(e)" multiple class="form-control"></InputFile>
 					</div>
+				</div>
+				<div class="row m-1">
+					@foreach (var photo in Property.Photos)
+					{
+						<button type="button" @onclick="() => Property.Remove(photo)" class="btn-close" style="width:150px;height:150px" aria-label="Close">
+							<img src="data:image/webp;base64, @((string)photo)" style="width:150px;height:150px" class="rounded float-start" alt="photo">
+						</button>
+					}
 				</div>
 			</div>
 			<div class="container-fluid bg-white">
@@ -96,11 +104,7 @@
 
 @code {
 
-	Property? Property { get; } = new("", OfferPurpose.Rent, PropertyType.Appartment, 0);
-
-	List<Photo> Photos { get; } = new();
-
-	List<Facility> Facilities { get; } = new() { new("") };
+	Property Property { get; } = new("", OfferPurpose.Rent, PropertyType.Appartment, 0);
 
 	async ValueTask LoadFiles(InputFileChangeEventArgs e)
 	{
@@ -111,7 +115,7 @@
 
 			using var stream = file.OpenReadStream(maxAllowedSize: 10 * 1024 * 1024);
 			await stream.ReadAsync(photo.Data, 0, (int)file.Size);
-			Photos.Add(photo);
+			Property.Add(photo);
 		}
 	}
 
@@ -119,19 +123,20 @@
 	{
 		if (Property is null) return;
 
-		Photos.ForEach(Property.Add);
-		Facilities.ForEach(Property.Add);
-
 		using var api = this.Endpoint("Properties");
-		var response = await api.PostAsJsonAsync(string.Empty, Property!, new JsonSerializerOptions { ReferenceHandler = ReferenceHandler.IgnoreCycles });
+		var response = await api.PostAsJsonAsync(string.Empty, Property!);
 
 		response.EnsureSuccessStatusCode();
 		this.Navigator.NavigateTo("/");
 	}
 
-	protected override Task OnInitializedAsync()
+	protected override async Task OnInitializedAsync()
 	{
+		await base.OnInitializedAsync();
+
+		Property.Add(new Facility(""));
 		Property.AvaiableFrom = DateTime.Now;
-		return base.OnInitializedAsync();
+		Property.OwnerId = (await GetUser()).Id;
+		Property.PhotosChanged += (s,e) => StateHasChanged();
 	}
 }

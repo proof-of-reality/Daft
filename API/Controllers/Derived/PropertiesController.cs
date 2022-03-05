@@ -1,5 +1,6 @@
 ﻿using Core.Interfaces;
 using Core.Models;
+using Microsoft.AspNetCore.Mvc;
 
 namespace API.Controllers.Derived
 {
@@ -7,6 +8,11 @@ namespace API.Controllers.Derived
     {
         public PropertiesController(IAsyncRepository<Property> repo) : base(repo)
         {
+        }
+
+        public override Task<ActionResult<bool>> Post(Property entity, CancellationToken token)
+        {
+            return base.Post(entity, token);
         }
     }
 }
