@@ -1,10 +1,12 @@
 using Blazored.Modal;
-using Microsoft.Extensions.DependencyInjection;
+using Core.Common;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 builder.Services.AddHttpClient();
+builder.Services.AddControllers()
+    .AddJsonOptions(o => o.JsonSerializerOptions.Configure());
 builder.Services.AddRazorPages();
 builder.Services.AddBlazoredModal();
 builder.Services.AddServerSideBlazor();
