@@ -10,11 +10,22 @@ public class UsersController : ControllerAsync<User>
     {
     }
 
-    public override Task<ActionResult<bool>> Post(User entity, CancellationToken token)
+    async Task<User> GetAsync(User user, CancellationToken token) => 
+        (await _repository.ListAsync(u => user.Email.Equals(u.Email), (0, 1), token)).FirstOrDefault()!;
+
+    public override async Task<ActionResult<bool>> Post(User user, CancellationToken token)
     {
-        if (!ModelState.IsValid) return Task.FromResult((ActionResult<bool>)BadRequest(ModelState.ValidationState));
-        EncryptPassword(entity);
-        return base.Post(entity, token);
+        if (!ModelState.IsValid) return BadRequest(ModelState.ValidationState);
+        var _user = await GetAsync(user, token);
+
+        if(_user != null)
+        {
+            ModelState.AddModelError("all", "email already exists");
+            return BadRequest(ModelState.IsValid);
+        }
+
+        EncryptPassword(user);
+        return await base.Post(user, token);
     }
 
     private static void EncryptPassword(User user)
@@ -23,17 +34,16 @@ public class UsersController : ControllerAsync<User>
         user.Password = encrypted;
     }
 
-    public override Task<ActionResult<bool>> Patch(User entity, CancellationToken token)
-    {
-        if (!ModelState.IsValid) return Task.FromResult((ActionResult<bool>)BadRequest(ModelState.ValidationState));
-        EncryptPassword(entity);
-        return base.Patch(entity, token);
-    }
 
     [HttpPost("Login")]
-    public virtual async Task<ActionResult<bool>> Login(User user, CancellationToken token)
+    public async Task<ActionResult<Client>> Login(User user, CancellationToken token)
     {
-        var userRepo = await _repository.ListAsync(u => u.Email.Equals(user.Email) && u.Password.Equals(u.Password), (0, 1), token);
-        return userRepo is not null;
+        var _user = await GetAsync(user, token);
+
+        if (_user is null) return BadRequest("User doesnt exists");
+        var res = BCrypt.Net.BCrypt.Verify(user.Password, _user.Password);
+
+        _user.Password = "";
+        return res ? Ok(_user) : BadRequest("Wrong password");
     }
 }
