@@ -22,7 +22,7 @@
 				<InputText type="password" @bind-Value="user.Password" class="form-control"></InputText>
 			</div>
 			<div class="mb-3">
-				<button type="submit" class="btn btn-primary btn-lg" @onclick="login">Sign In</button>
+				<button type="submit" class="btn btn-primary btn-lg">Sign In</button>
 			</div>
 		</div>
 	</div>
@@ -38,9 +38,10 @@
 	{
 		using var api = Endpoint("Users");
 
-		var response = await api.PostAsJsonAsync("/Login", user);
+		var response = await api.PostAsJsonAsync("Users/Login", user);
 		response.EnsureSuccessStatusCode();
 
-		if (await response.Content.ReadFromJsonAsync<bool>()) Navigator.NavigateTo("/");
+		await Set((await response.Content.ReadFromJsonAsync<Core.Models.User>())!);
+		Navigator.NavigateTo("/");
 	}
 }
