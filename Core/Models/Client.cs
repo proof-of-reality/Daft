@@ -1,4 +1,5 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using System.Collections.ObjectModel;
+using System.ComponentModel.DataAnnotations;
 using Core.Interfaces;
 
 namespace Core.Models;
@@ -13,6 +14,13 @@ public  class Client : User, IAdd<Property>
     {
         FirstName = firstName ?? throw new ArgumentException("{0} cannot be null", nameof(firstName));
         LastName = lastName ?? throw new ArgumentException("{0} cannot be null", nameof(lastName));
+
+        _properties.CollectionChanged += (s, e) =>
+        {
+            if (e.Action != System.Collections.Specialized.NotifyCollectionChangedAction.Add) return;
+
+            foreach (Property item in e.NewItems) item.Owner = this;
+        };
     }
 
     [Required]
@@ -25,13 +33,8 @@ public  class Client : User, IAdd<Property>
     [MaxLength(30)]
     public string LastName { get; set; } = string.Empty;
 
-
-    private List<Property> _properties = new();
+    private ObservableCollection<Property> _properties = new();
     public IReadOnlyCollection<Property> Properties => _properties;
 
-    public void Add(Property prop)
-    {
-        prop.Owner = this;
-        _properties.Add(prop);
-    }
+    public void Add(Property prop) => _properties.Add(prop);
 }

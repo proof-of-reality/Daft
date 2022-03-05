@@ -41,5 +41,9 @@ public class Photo : Identifiable
         }
     }
 
+    /// <summary>
+    /// Returns the base64 representation of the byte array of this photo.
+    /// </summary>
+    /// <param name="p"></param>
     public static explicit operator string(Photo p) => Convert.ToBase64String(p.Data);
 }
