@@ -1,3 +1,4 @@
+using System.Text.Json;
 using Blazored.Modal;
 using Core.Common;
 
@@ -5,9 +6,8 @@ var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 builder.Services.AddHttpClient();
-builder.Services.AddControllers()
+builder.Services.AddRazorPages()
     .AddJsonOptions(o => o.JsonSerializerOptions.Configure());
-builder.Services.AddRazorPages();
 builder.Services.AddBlazoredModal();
 builder.Services.AddServerSideBlazor();
 builder.Services
@@ -18,6 +18,7 @@ builder.Services
         ServerCertificateCustomValidationCallback =
             (httpRequestMessage, cert, cetChain, policyErrors) => true
     });
+
 
 
 var app = builder.Build();
@@ -31,7 +32,6 @@ if (!app.Environment.IsDevelopment())
 }
 
 //app.UseHttpsRedirection();
-app.MapControllers();
 app.UseStaticFiles();
 
 app.UseRouting();

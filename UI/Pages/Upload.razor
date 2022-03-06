@@ -55,16 +55,20 @@
 				</div>
 			</div>
 			<div class="mb-3">
-				<div class="row align-items-center">
-					<div class="col">
-						<label class="form-label">Avaiable bedrooms</label>
+				<div class="row align-items-bottom">
+					<div class="col-md-4">
+						<label class="form-label">Price</label>
+						<InputNumber type="text" @bind-Value="Property.Price" class="form-control"></InputNumber>
+					</div>
+					<div class="col-md-4">
+						<label class="form-label small">Avaiable bedrooms</label>
 						<InputNumber type="text" @bind-Value="Property.BedroomsAvaiable" class="form-control"></InputNumber>
 					</div>
 					<div class="col">
 						<br />
 						<div class="form-check form-switch align-items-md-center">
+							<label class="form-check-label align-text-end small">Owner Occupied</label>
 							<InputCheckbox @bind-Value="Property.OwnerOccupied" class="form-check-input"></InputCheckbox>
-							<label class="form-check-label align-text-end">Owner Occupied</label>
 						</div>
 					</div>
 				</div>
@@ -124,7 +128,10 @@
 		if (Property is null) return;
 
 		using var api = this.Endpoint("Properties");
-		var response = await api.PostAsJsonAsync(string.Empty, Property!);
+		var opts = new JsonSerializerOptions { IncludeFields = true, ReferenceHandler = ReferenceHandler.Preserve };
+		var test = JsonSerializer.Serialize(Property, opts);
+		var prop = JsonSerializer.Deserialize<Property>(test, opts);
+		var response = await api.PostAsJsonAsync(string.Empty, Property!, opts);
 
 		response.EnsureSuccessStatusCode();
 		this.Navigator.NavigateTo("/");
@@ -137,6 +144,7 @@
 		Property.Add(new Facility(""));
 		Property.AvaiableFrom = DateTime.Now;
 		Property.OwnerId = (await GetUser()).Id;
-		Property.PhotosChanged += (s,e) => StateHasChanged();
+		Property.Price = Random.Shared.Next(60, 2109);
+		Property.PhotosChanged += (s, e) => this.InvokeAsync(StateHasChanged);
 	}
 }

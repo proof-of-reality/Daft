@@ -72,7 +72,7 @@ public class Property : Identifiable, IAdd<Photo>, IAdd<Facility>
 
     [Required]
     [Range(50, double.MaxValue)]
-    public decimal Price { get; set; } = 51;
+    public decimal Price { get; set; }
 
     [Required]
     [Range(1, double.MaxValue)]
@@ -97,10 +97,10 @@ public class Property : Identifiable, IAdd<Photo>, IAdd<Facility>
     public Client Owner { get; set; }
 
     [JsonPropertyName(nameof(Photos))]
-    private ObservableCollection<Photo> _photos;
+    private readonly ObservableCollection<Photo> _photos;
 
     [JsonPropertyName(nameof(Facilities))]
-    private ObservableCollection<Facility> _facilities;
+    private readonly ObservableCollection<Facility> _facilities;
 
     public IReadOnlyCollection<Photo> Photos => _photos;
 

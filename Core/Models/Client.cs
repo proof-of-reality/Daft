@@ -1,12 +1,14 @@
 ﻿using System.Collections.ObjectModel;
 using System.ComponentModel.DataAnnotations;
+using System.Text.Json.Serialization;
 using Core.Interfaces;
 
 namespace Core.Models;
 
-public  class Client : User, IAdd<Property>
+public class Client : User, IAdd<Property>
 {
-    private Client() : base(null!, null!)
+    [JsonConstructor]
+    public Client() : base("", "")
     {
     }
 
@@ -33,7 +35,9 @@ public  class Client : User, IAdd<Property>
     [MaxLength(30)]
     public string LastName { get; set; } = string.Empty;
 
-    private ObservableCollection<Property> _properties = new();
+    [JsonPropertyName(nameof(Properties))]
+    private readonly ObservableCollection<Property> _properties = new();
+
     public IReadOnlyCollection<Property> Properties => _properties;
 
     public void Add(Property prop) => _properties.Add(prop);

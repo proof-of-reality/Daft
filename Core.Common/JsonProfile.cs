@@ -7,9 +7,8 @@ public static class JsonProfile
 {
     public static void Configure(this JsonSerializerOptions options)
     {
-        options.MaxDepth = 1;
         options.IncludeFields = true;
-        options.ReferenceHandler = ReferenceHandler.IgnoreCycles;
+        options.ReferenceHandler = ReferenceHandler.Preserve;
         options.PropertyNamingPolicy = JsonNamingPolicy.CamelCase;
     }
 }
