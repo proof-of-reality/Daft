@@ -115,7 +115,7 @@
 		var files = e.GetMultipleFiles();
 		foreach (var file in files)
 		{
-			var photo = new Photo(new byte[file.Size]);
+			var photo = new Photo(new byte[file.Size], file.ContentType);
 
 			using var stream = file.OpenReadStream(maxAllowedSize: 10 * 1024 * 1024);
 			await stream.ReadAsync(photo.Data, 0, (int)file.Size);
@@ -128,12 +128,13 @@
 		if (Property is null) return;
 
 		using var api = this.Endpoint("Properties");
-		var opts = new JsonSerializerOptions { IncludeFields = true, ReferenceHandler = ReferenceHandler.Preserve };
+		var opts = new JsonSerializerOptions { ReferenceHandler = ReferenceHandler.Preserve};
 		var test = JsonSerializer.Serialize(Property, opts);
-		var prop = JsonSerializer.Deserialize<Property>(test, opts);
-		var response = await api.PostAsJsonAsync(string.Empty, Property!, opts);
 
-		response.EnsureSuccessStatusCode();
+		var prop = JsonSerializer.Deserialize<Property>(test, opts);
+		var response = await api.PostAsJsonAsync("", Property!);
+
+		//response.EnsureSuccessStatusCode();
 		this.Navigator.NavigateTo("/");
 	}
 
@@ -141,7 +142,7 @@
 	{
 		await base.OnInitializedAsync();
 
-		Property.Add(new Facility(""));
+		Property.Add(new Facility());
 		Property.AvaiableFrom = DateTime.Now;
 		Property.OwnerId = (await GetUser()).Id;
 		Property.Price = Random.Shared.Next(60, 2109);

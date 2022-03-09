@@ -91,7 +91,7 @@
 		{
 			var src = $"wwwroot/Photos/{Random.Shared.Next(1, 6)}.webp";
 			var data = File.ReadAllBytes(src);
-			var photo = new Photo(data);
+			var photo = new Photo(data, "webp");
 			p.Add(photo);
 		});
 

@@ -1,4 +1,5 @@
-﻿using System.Collections.ObjectModel;
+﻿using Core.Common.Extensions;
+using System.Collections.ObjectModel;
 using System.Collections.Specialized;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
@@ -24,42 +25,35 @@ public enum PropertyType
 public class Property : Identifiable, IAdd<Photo>, IAdd<Facility>
 {
     [JsonConstructor]
-    public Property()
+    public Property(Client owner, IReadOnlyCollection<Photo> photos, IReadOnlyCollection<Facility> facilities)
     {
-        _photos = new();
-        _facilities = new();
-        _photos.CollectionChanged += (s, e) =>
-        {
-            PhotosChanged?.Invoke(this, e);
-            if (e.Action != NotifyCollectionChangedAction.Add) return;
-            foreach (Photo item in e.NewItems)
-            {
-                item.Property = this;
-            }
-        };
-
-        _facilities.CollectionChanged += (s, e) =>
-        {
-            FacilitiesChanged?.Invoke(this, e);
-            if (e.Action != NotifyCollectionChangedAction.Add) return;
-            foreach (Facility item in e.NewItems)
-            {
-                item.Property = this;
-            }
-        };
-        Owner = new Client("", "", "", "");
+        Owner = owner;
+        Photos = new ObservableCollection<Photo>(photos);
+        Facilities = new ObservableCollection<Facility>(facilities);
+        ((INotifyCollectionChanged)Photos).OnAdd<Photo>(item => item.Property = this);
+        ((INotifyCollectionChanged)Facilities).OnAdd<Facility>(item => item.Property = this);
     }
 
-    public Property(string address, OfferPurpose category, PropertyType type, decimal price) : this()
+    public Property(string address, OfferPurpose category, PropertyType type, decimal price) :
+        this(new Client(Array.Empty<Property>()), Array.Empty<Photo>(), Array.Empty<Facility>())
     {
-        Address = address;
-        OfferPurpose = category;
         Type = type;
         Price = price;
+        Address = address;
+        OfferPurpose = category;
     }
 
-    public event NotifyCollectionChangedEventHandler? FacilitiesChanged;
-    public event NotifyCollectionChangedEventHandler? PhotosChanged;
+    public event NotifyCollectionChangedEventHandler? PhotosChanged
+    {
+        add => ((INotifyCollectionChanged)Photos).CollectionChanged += value;
+        remove => ((INotifyCollectionChanged)Photos).CollectionChanged -= value;
+    }
+
+    public event NotifyCollectionChangedEventHandler? FacilitiesChanged
+    {
+        add => ((INotifyCollectionChanged)Facilities).CollectionChanged += value;
+        remove => ((INotifyCollectionChanged)Facilities).CollectionChanged += value;
+    }
 
     [Required]
     public string Address { get; set; } = string.Empty;
@@ -75,7 +69,7 @@ public class Property : Identifiable, IAdd<Photo>, IAdd<Facility>
     public decimal Price { get; set; }
 
     [Required]
-    [Range(1, double.MaxValue)]
+    [Range(1, short.MaxValue)]
     public short BedroomsAvaiable { get; set; }
 
     [Required]
@@ -91,24 +85,22 @@ public class Property : Identifiable, IAdd<Photo>, IAdd<Facility>
     /// </summary>
     public bool? Preference { get; set; }
 
+    [Required]
     [ForeignKey(nameof(Owner))]
     public long OwnerId { get; set; }
 
+    [JsonInclude]
     public Client Owner { get; set; }
 
-    [JsonPropertyName(nameof(Photos))]
-    private readonly ObservableCollection<Photo> _photos;
+    [MinLength(1)]
+    public IReadOnlyCollection<Photo> Photos { get; }
 
-    [JsonPropertyName(nameof(Facilities))]
-    private readonly ObservableCollection<Facility> _facilities;
+    [JsonInclude]
+    public IReadOnlyCollection<Facility> Facilities { get; }
 
-    public IReadOnlyCollection<Photo> Photos => _photos;
+    public void Add(Photo photo) => ((IList<Photo>)Photos).Add(photo);
+    public void Remove(Photo photo) => ((IList<Photo>)Photos).Remove(photo);
 
-    public IReadOnlyCollection<Facility> Facilities => _facilities;
-
-    public void Add(Photo photo) => _photos.Add(photo);
-    public void Remove(Photo photo) => _photos.Remove(photo);
-
-    public void Add(Facility facility) => _facilities.Add(facility);
-    public void Remove(Facility facility) => _facilities.Remove(facility);
+    public void Add(Facility facility) => ((IList<Facility>)Facilities).Add(facility);
+    public void Remove(Facility facility) => ((IList<Facility>)Facilities).Remove(facility);
 }

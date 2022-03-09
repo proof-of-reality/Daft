@@ -17,6 +17,7 @@ builder.Services.AddSwaggerGen();
 builder.Services.AddDbContext<SqlServerContext>();
 builder.Services.AddScoped(typeof(IAsyncRepository<>), typeof(AsyncRepository<>));
 
+
 var app = builder.Build();
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
@@ -27,6 +28,17 @@ if (app.Environment.IsDevelopment())
 
 app.UseSwaggerUI();
 app.UseHttpsRedirection();
+app.Use(async (context, next) =>
+{
+	try
+	{
+        await next();
+	}
+	catch (global::System.Exception ex)
+	{
+        Console.WriteLine(ex.ToString());
+	}
+});
 
 app.UseAuthorization();
 

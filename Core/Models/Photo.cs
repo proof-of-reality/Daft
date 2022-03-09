@@ -1,36 +1,44 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using System.Text.Json.Serialization;
 
 namespace Core.Models;
 
 public class Photo : Identifiable
 {
+    [JsonConstructor]
+	public Photo()
+	{
+	}
 
-    public Photo(string path) : this(File.ReadAllBytes(path))
+    public Photo(string path)
     {
+        Data = File.ReadAllBytes(path);
+        Format = new FileInfo(path).Extension;
     }
 
-    public Photo(byte[] data)
+    public Photo(byte[] data, string format)
     {
         Data = data;
+        Format = format;
     }
 
     [Required]
     [MinLength(3)]
     [MaxLength(10)]
-    public string Format { get; set; } = string.Empty;
+    public string Format { get; private set; } = string.Empty;
 
     [Required]
+    [JsonInclude]
     [DataType(DataType.Upload)]
-    public byte[] Data { get; set; } = Array.Empty<byte>();
+    public byte[] Data { get; private set; } = Array.Empty<byte>();
 
 
     [ForeignKey(nameof(Property))]
-    public long PropertyId { get; set; }
+    public long PropertyId { get; private set; }
 
 
     private Property? _prop;
-
     public Property Property
     {
         get => _prop!;
