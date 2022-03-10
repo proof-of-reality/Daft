@@ -20,11 +20,16 @@
 
 			@if (true)
 			{
-				var href = "/upload";
+				var href = "";
 				if (_user is null)
 				{
 					<a href="/login" class="text-black text-decoration-none">Sign in</a>
 					href = "/user";
+				}
+				else
+				{
+					<a href @onclick="LogOut" class="text-black text-decoration-none">Log out</a>
+					href = "/upload";
 				}
 				<a href="@href" class="text-black text-decoration-none">Place Ad</a>
 			}
@@ -49,5 +54,12 @@
 			StateHasChanged();
 		}
 		await base.OnAfterRenderAsync(firstRender);
+	}
+
+	async Task LogOut()
+	{
+		await BrowserStorage.DeleteAsync(nameof(Core.Models.User).ToLower());
+		_user = null;
+		StateHasChanged();
 	}
 }
