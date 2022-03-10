@@ -6,7 +6,10 @@ namespace Core.Models;
 
 public class Facility : Identifiable
 {
-    [JsonConstructor]
+    private Facility()
+    {
+    }
+
     public Facility(string text = "") => _text = text;
 
     [Required]

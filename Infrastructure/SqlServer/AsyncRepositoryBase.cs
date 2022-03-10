@@ -15,11 +15,11 @@ public class AsyncRepositoryBase<T> : IAsyncRepositoryBase<T>, IDisposable where
         _db = db;
     }
 
-    public Task<int> AddAsync(T entity, CancellationToken token = default)
+    public async Task<T> AddAsync(T entity, CancellationToken token = default)
     {
         Table.Add(entity);
-        SaveChangesAsync(token).Wait(token);
-        return Task.FromResult(1);
+        await SaveChangesAsync(token);
+        return entity;
     }
 
     public Task<bool> DeleteAsync(T entity, CancellationToken token = default)
@@ -46,6 +46,5 @@ public class AsyncRepositoryBase<T> : IAsyncRepositoryBase<T>, IDisposable where
         return SaveChangesAsync(token);
     }
 
-    protected Task<bool> SaveChangesAsync(CancellationToken token = default) =>
-        Task.Run(async () => await _db.SaveChangesAsync(token) > 0);
+    protected async Task<bool> SaveChangesAsync(CancellationToken token = default) => (await _db.SaveChangesAsync(token)) > 0;
 }

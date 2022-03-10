@@ -9,7 +9,7 @@ namespace Core.Interfaces
         /// Add an element to the underlying database
         /// </summary>
         /// <param name="entity"></param>
-        public Task<int> AddAsync(T entity, CancellationToken token = default);
+        public Task<T> AddAsync(T entity, CancellationToken token = default);
 
         /// <summary>
         /// Removes the entity from underlying database

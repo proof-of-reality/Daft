@@ -128,11 +128,11 @@
 		if (Property is null) return;
 
 		using var api = this.Endpoint("Properties");
-		var opts = new JsonSerializerOptions { ReferenceHandler = ReferenceHandler.Preserve};
+
+		var opts = new JsonSerializerOptions { ReferenceHandler = ReferenceHandler.Preserve };
 		var test = JsonSerializer.Serialize(Property, opts);
 
-		var prop = JsonSerializer.Deserialize<Property>(test, opts);
-		var response = await api.PostAsJsonAsync("", Property!);
+		var response = await api.PostAsJsonAsync("", Property, opts);
 
 		//response.EnsureSuccessStatusCode();
 		this.Navigator.NavigateTo("/");
@@ -144,7 +144,8 @@
 
 		Property.Add(new Facility());
 		Property.AvaiableFrom = DateTime.Now;
-		Property.OwnerId = (await GetUser()).Id;
+		Property.Owner = (await GetCurrentUser());
+		Property.OwnerId = Property.Owner.Id;
 		Property.Price = Random.Shared.Next(60, 2109);
 		Property.PhotosChanged += (s, e) => this.InvokeAsync(StateHasChanged);
 	}

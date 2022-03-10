@@ -4,16 +4,16 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace API.Controllers.Derived;
 
-public class UsersController : ControllerAsync<User>
+public class UsersController : ControllerAsync<Client>
 {
-    public UsersController(IAsyncRepository<User> repo) : base(repo)
+    public UsersController(IAsyncRepository<Client> repo) : base(repo)
     {
     }
 
-    async Task<User> GetAsync(User user, CancellationToken token) => 
+    async Task<Client> GetAsync(User user, CancellationToken token) => 
         (await _repository.ListAsync(u => user.Email.Equals(u.Email), (0, 1), token)).FirstOrDefault()!;
 
-    public override async Task<ActionResult<bool>> Post(User user, CancellationToken token)
+    public override async Task<ActionResult<Client>> Post(Client user, CancellationToken token)
     {
         if (!ModelState.IsValid) return BadRequest(ModelState.ValidationState);
         var _user = await GetAsync(user, token);

@@ -1,9 +1,8 @@
-﻿using Core.Common.Extensions;
-using System.Collections.ObjectModel;
+﻿using System.Collections.ObjectModel;
 using System.Collections.Specialized;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
-using System.Text.Json.Serialization;
+using Core.Common.Extensions;
 using Core.Interfaces;
 
 namespace Core.Models;
@@ -24,18 +23,18 @@ public enum PropertyType
 
 public class Property : Identifiable, IAdd<Photo>, IAdd<Facility>
 {
-    [JsonConstructor]
-    public Property(Client owner, IReadOnlyCollection<Photo> photos, IReadOnlyCollection<Facility> facilities)
+    private Property() : this(Client.System)
+    {
+    }
+
+    public Property(Client owner)
     {
         Owner = owner;
-        Photos = new ObservableCollection<Photo>(photos);
-        Facilities = new ObservableCollection<Facility>(facilities);
         ((INotifyCollectionChanged)Photos).OnAdd<Photo>(item => item.Property = this);
         ((INotifyCollectionChanged)Facilities).OnAdd<Facility>(item => item.Property = this);
     }
 
-    public Property(string address, OfferPurpose category, PropertyType type, decimal price) :
-        this(new Client(Array.Empty<Property>()), Array.Empty<Photo>(), Array.Empty<Facility>())
+    public Property(string address, OfferPurpose category, PropertyType type, decimal price) : this(new Client())
     {
         Type = type;
         Price = price;
@@ -64,12 +63,10 @@ public class Property : Identifiable, IAdd<Photo>, IAdd<Facility>
     [Required]
     public PropertyType Type { get; set; }
 
-    [Required]
-    [Range(50, double.MaxValue)]
+    [Required, Range(50, double.MaxValue)]
     public decimal Price { get; set; }
 
-    [Required]
-    [Range(1, short.MaxValue)]
+    [Required, Range(1, short.MaxValue)]
     public short BedroomsAvaiable { get; set; }
 
     [Required]
@@ -85,18 +82,15 @@ public class Property : Identifiable, IAdd<Photo>, IAdd<Facility>
     /// </summary>
     public bool? Preference { get; set; }
 
-    [Required]
-    [ForeignKey(nameof(Owner))]
+    [Required, ForeignKey(nameof(Owner))]
     public long OwnerId { get; set; }
 
-    [JsonInclude]
     public Client Owner { get; set; }
 
     [MinLength(1)]
-    public IReadOnlyCollection<Photo> Photos { get; }
+    public IReadOnlyCollection<Photo> Photos { get; } = new ObservableCollection<Photo>();
 
-    [JsonInclude]
-    public IReadOnlyCollection<Facility> Facilities { get; }
+    public IReadOnlyCollection<Facility> Facilities { get; } = new ObservableCollection<Facility>();
 
     public void Add(Photo photo) => ((IList<Photo>)Photos).Add(photo);
     public void Remove(Photo photo) => ((IList<Photo>)Photos).Remove(photo);

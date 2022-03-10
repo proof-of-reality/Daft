@@ -5,7 +5,7 @@ namespace API.Interfaces;
 public interface IAsyncRestBase<T> where T : class
 {
     [HttpPost]
-    public Task<ActionResult<bool>> Post(T entity, CancellationToken token);
+    public Task<ActionResult<T>> Post(T entity, CancellationToken token);
 
     [HttpGet]
     public Task<ActionResult<IEnumerable<T>>> Get(int from, int quantity, CancellationToken token);

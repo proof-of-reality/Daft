@@ -1,22 +1,20 @@
-using System.Text.Json;
-using System.Text.Json.Serialization;
-using Core.Common;
 using Core.Interfaces;
 using Core.Models;
 using Infrastructure.SqlServer;
+using Newtonsoft.Json;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 builder.Services.AddControllers()
-    .AddJsonOptions(o => o.JsonSerializerOptions.Configure());
+    .AddNewtonsoftJson(opt => opt.SerializerSettings.ReferenceLoopHandling = ReferenceLoopHandling.Ignore);
+//.AddJsonOptions(o => o.JsonSerializerOptions.Configure());
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
 builder.Services.AddDbContext<SqlServerContext>();
 builder.Services.AddScoped(typeof(IAsyncRepository<>), typeof(AsyncRepository<>));
-
 
 var app = builder.Build();
 // Configure the HTTP request pipeline.
@@ -28,17 +26,17 @@ if (app.Environment.IsDevelopment())
 
 app.UseSwaggerUI();
 app.UseHttpsRedirection();
-app.Use(async (context, next) =>
-{
-	try
-	{
-        await next();
-	}
-	catch (global::System.Exception ex)
-	{
-        Console.WriteLine(ex.ToString());
-	}
-});
+//app.Use(async (context, next) =>
+//{
+//	try
+//	{
+//        await next();
+//	}
+//	catch (global::System.Exception ex)
+//	{
+//        Console.WriteLine(ex.ToString());
+//	}
+//});
 
 app.UseAuthorization();
 

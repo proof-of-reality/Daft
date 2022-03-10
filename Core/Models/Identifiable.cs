@@ -4,7 +4,6 @@ namespace Core.Models;
 
 public abstract class Identifiable
 {
-    [Key]
-    [Required]
+    [Key, Required]
     public long Id { get; set; }
 }

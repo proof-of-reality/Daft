@@ -1,15 +1,13 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
-using System.Text.Json.Serialization;
 
 namespace Core.Models;
 
 public class Photo : Identifiable
 {
-    [JsonConstructor]
-	public Photo()
-	{
-	}
+    private Photo()
+    {
+    }
 
     public Photo(string path)
     {
@@ -23,14 +21,10 @@ public class Photo : Identifiable
         Format = format;
     }
 
-    [Required]
-    [MinLength(3)]
-    [MaxLength(10)]
+    [Required, MinLength(3)]
     public string Format { get; private set; } = string.Empty;
 
-    [Required]
-    [JsonInclude]
-    [DataType(DataType.Upload)]
+    [Required, DataType(DataType.Upload)]
     public byte[] Data { get; private set; } = Array.Empty<byte>();
 
 

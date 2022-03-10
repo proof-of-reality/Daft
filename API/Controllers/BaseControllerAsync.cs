@@ -28,6 +28,6 @@ public class BaseControllerAsync<T> : ControllerBase, IAsyncRestBase<T> where T 
         ModelState.IsValid ? Ok(await _repository.UpdateAsync(entity, token)) : BadRequest(ModelState.ValidationState);
 
     [HttpPost]
-    public virtual async Task<ActionResult<bool>> Post(T entity, CancellationToken token) =>
+    public virtual async Task<ActionResult<T>> Post(T entity, CancellationToken token) =>
         ModelState.IsValid ? Ok(await _repository.AddAsync(entity, token)) : BadRequest(ModelState.ValidationState);
 }

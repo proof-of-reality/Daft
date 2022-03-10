@@ -1,6 +1,6 @@
-using System.Text.Json;
 using Blazored.Modal;
 using Core.Common;
+using Newtonsoft.Json;
 
 var builder = WebApplication.CreateBuilder(args);
 

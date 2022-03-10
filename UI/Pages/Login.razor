@@ -3,6 +3,7 @@
 @using System.Text.Json
 @using Core.Models
 @using System.Text.Json.Serialization
+@using Newtonsoft.Json
 
 @inherits ComponentAPI
 @inject NavigationManager Navigator
@@ -39,9 +40,13 @@
 		using var api = Endpoint("Users");
 
 		var response = await api.PostAsJsonAsync("Users/Login", user);
-		response.EnsureSuccessStatusCode();
+		if (!response.IsSuccessStatusCode) return;
 
-		await Set((await response.Content.ReadFromJsonAsync<Core.Models.User>())!);
+		var strClient = await response.Content.ReadAsStringAsync();
+		var client = JsonConvert.DeserializeObject<Core.Models.Client>(strClient);
+		//var client = await response.Content.ReadFromJsonAsync<object>();
+		await Set(client!);
+
 		Navigator.NavigateTo("/");
 	}
 }

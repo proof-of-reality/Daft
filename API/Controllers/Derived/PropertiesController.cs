@@ -10,7 +10,7 @@ namespace API.Controllers.Derived
         {
         }
 
-        public override Task<ActionResult<bool>> Post(Property entity, CancellationToken token)
+        public override Task<ActionResult<Property>> Post(Property entity, CancellationToken token)
         {
             return base.Post(entity, token);
         }
