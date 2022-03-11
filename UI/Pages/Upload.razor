@@ -13,22 +13,24 @@
 
 <EditForm Model="Property" OnSubmit="DoUpload">
 	<DataAnnotationsValidator />
-	<ValidationSummary />
 	<div class="container-fluid bg-white">
 		<div class="d-grid gap-2 col-5 mx-auto bg-bg-dark">
 			<div class="mb-3">
 				<label class="form-label">Address</label>
 				<InputText type="text" @bind-Value="Property.Address" class="form-control"></InputText>
+				<ValidationMessage For="@(() => Property.Address)" />
 			</div>
 			<div class="mb-3">
 				<div class="row align-items-start">
 					<div class="col">
 						<label class="form-label">Avaiable From:</label>
 						<InputDate @bind-Value="Property.AvaiableFrom" class="form-control col-3"></InputDate>
+						<ValidationMessage For="@(() => Property.AvaiableFrom)" />
 					</div>
 					<div class="col">
 						<label class="form-label">Until:</label>
 						<InputDate @bind-Value="Property.AvaiableUntil" class="form-control col-3"></InputDate>
+						<ValidationMessage For="@(() => Property.AvaiableUntil)" />
 					</div>
 				</div>
 			</div>
@@ -59,16 +61,19 @@
 					<div class="col-md-4">
 						<label class="form-label">Price</label>
 						<InputNumber type="text" @bind-Value="Property.Price" class="form-control"></InputNumber>
+						<ValidationMessage For="@(() => Property.Price)" />
 					</div>
 					<div class="col-md-4">
 						<label class="form-label small">Avaiable bedrooms</label>
 						<InputNumber type="text" @bind-Value="Property.BedroomsAvaiable" class="form-control"></InputNumber>
+						<ValidationMessage For="@(() => Property.BedroomsAvaiable)" />
 					</div>
 					<div class="col">
 						<br />
 						<div class="form-check form-switch align-items-md-center">
 							<label class="form-check-label align-text-end small">Owner Occupied</label>
 							<InputCheckbox @bind-Value="Property.OwnerOccupied" class="form-check-input"></InputCheckbox>
+							<ValidationMessage For="@(() => Property.OwnerOccupied)" />
 						</div>
 					</div>
 				</div>
@@ -78,6 +83,7 @@
 				@foreach (var facility in Property.Facilities)
 				{
 					<InputText typeof="text" @bind-Value="facility.Text" class="form-control"></InputText>
+					<ValidationMessage For="@(() => facility)" />
 				}
 			</div>
 			<div class="mb-3">
@@ -85,6 +91,7 @@
 				<div class="row">
 					<div class="col m-1 ">
 						<InputFile @onclick="() => Property.Photos.ToList().ForEach(Property.Remove)" OnChange="async e => await LoadFiles(e)" multiple class="form-control"></InputFile>
+						<ValidationMessage For="@(() => Property.Photos)" />
 					</div>
 				</div>
 				<div class="row m-1">
@@ -123,16 +130,32 @@
 		}
 	}
 
-	async Task DoUpload()
+	async Task DoUpload(EditContext editContext)
 	{
-		if (Property is null) return;
+		if (!editContext.Validate()) return;
+
+		while (Property.Facilities.FirstOrDefault() is Facility f && (string.IsNullOrEmpty(f.Text) || string.IsNullOrWhiteSpace(f.Text)))
+		{
+			Property.Remove(f);
+		}
 
 		using var api = this.Endpoint("Properties");
-
 		var opts = new JsonSerializerOptions { ReferenceHandler = ReferenceHandler.Preserve };
-		var test = JsonSerializer.Serialize(Property, opts);
 
 		var response = await api.PostAsJsonAsync("", Property, opts);
+
+		//if (!response.IsSuccessStatusCode)
+		//{
+		//	var badRequest = await response.Content.ReadFromJsonAsync<BadRequest>()!;
+
+		//	foreach(var (field, error) in badRequest)
+		//	{
+		//		var Field = editContext.Field(field);
+		//		var a = editContext.EnableDataAnnotationsValidation();
+		//		a.
+				
+		//	}
+		//}
 
 		//response.EnsureSuccessStatusCode();
 		this.Navigator.NavigateTo("/");
@@ -140,12 +163,13 @@
 
 	protected override async Task OnInitializedAsync()
 	{
+		var getUserTask = GetCurrentUser();
 		await base.OnInitializedAsync();
 
 		Property.Add(new Facility());
-		Property.AvaiableFrom = DateTime.Now;
-		Property.Owner = (await GetCurrentUser());
+		Property.Owner = await getUserTask;
 		Property.OwnerId = Property.Owner.Id;
+		Property.AvaiableFrom = DateTime.Now;
 		Property.Price = Random.Shared.Next(60, 2109);
 		Property.PhotosChanged += (s, e) => this.InvokeAsync(StateHasChanged);
 	}

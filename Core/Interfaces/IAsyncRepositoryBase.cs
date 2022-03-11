@@ -30,8 +30,8 @@ namespace Core.Interfaces
         /// </summary>
         /// <param name="expression">Query</param>
         /// <returns></returns>
-        public Task<List<T>> ListAsync(Expression<Func<T, bool>> expression, (int from, int qtty) pagination, CancellationToken token = default);
+        public Task<List<T>> ListAsync(Expression<Func<T, bool>> expression, (int from, int qtty) pagination, CancellationToken token = default, params string[] includes);
 
-        public Task<List<T>> ListAsync((int from, int qtty) pagination, CancellationToken token = default);
+        public Task<List<T>> ListAsync((int from, int qtty) pagination, CancellationToken token = default, params string[] includes);
     }
 }

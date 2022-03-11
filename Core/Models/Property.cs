@@ -63,10 +63,10 @@ public class Property : Identifiable, IAdd<Photo>, IAdd<Facility>
     [Required]
     public PropertyType Type { get; set; }
 
-    [Required, Range(50, double.MaxValue)]
+    [Required, DataType(DataType.Currency), Range(50, double.MaxValue, ErrorMessage = "This field must be {1}+")]
     public decimal Price { get; set; }
 
-    [Required, Range(1, short.MaxValue)]
+    [Required, Range(1, short.MaxValue, ErrorMessage = "This field must be {1}+")]
     public short BedroomsAvaiable { get; set; }
 
     [Required]
@@ -87,7 +87,7 @@ public class Property : Identifiable, IAdd<Photo>, IAdd<Facility>
 
     public Client Owner { get; set; }
 
-    [MinLength(1)]
+    [MinLength(1, ErrorMessage = "Please, Add at least {1} photo(s) of the property")]
     public IReadOnlyCollection<Photo> Photos { get; } = new ObservableCollection<Photo>();
 
     public IReadOnlyCollection<Facility> Facilities { get; } = new ObservableCollection<Facility>();

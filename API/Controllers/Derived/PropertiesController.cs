@@ -10,9 +10,9 @@ namespace API.Controllers.Derived
         {
         }
 
-        public override Task<ActionResult<Property>> Post(Property entity, CancellationToken token)
-        {
-            return base.Post(entity, token);
+		public override async Task<ActionResult<Property>> GetAsync(int id, CancellationToken token = default)
+		{
+            return Ok(await ((IAsyncRepository<Property>)_repository).GetAsync(id, token, "Photos", "Facilities"));
         }
     }
 }

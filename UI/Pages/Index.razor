@@ -82,6 +82,7 @@
 	protected override async Task OnInitializedAsync()
 	{
 		using var api = Endpoint("Properties");
+		var test = await api.GetFromJsonAsync<IEnumerable<Property>>("");
 		_properties = new(_props);
 		//var props = (await api.GetFromJsonAsync<List<Property>>(string.Empty));
 		//if (props.Any()) _properties = props;
