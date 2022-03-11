@@ -5,24 +5,25 @@ using Microsoft.EntityFrameworkCore.Migrations;
 
 namespace Infrastructure.SqlServer.Migrations
 {
-    public partial class InitialMigration : Migration
+    public partial class InitialCreate : Migration
     {
         protected override void Up(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.CreateTable(
-                name: "Clients",
+                name: "Users",
                 columns: table => new
                 {
                     Id = table.Column<long>(type: "bigint", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
-                    FirstName = table.Column<string>(type: "nvarchar(15)", maxLength: 15, nullable: false),
-                    LastName = table.Column<string>(type: "nvarchar(30)", maxLength: 30, nullable: false),
                     Email = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    Password = table.Column<string>(type: "nvarchar(max)", nullable: false)
+                    Password = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    Discriminator = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    FirstName = table.Column<string>(type: "nvarchar(15)", maxLength: 15, nullable: true),
+                    LastName = table.Column<string>(type: "nvarchar(30)", maxLength: 30, nullable: true)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_Clients", x => x.Id);
+                    table.PrimaryKey("PK_Users", x => x.Id);
                 });
 
             migrationBuilder.CreateTable(
@@ -31,14 +32,13 @@ namespace Infrastructure.SqlServer.Migrations
                 {
                     Id = table.Column<long>(type: "bigint", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
-                    Title = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     Address = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    Category = table.Column<int>(type: "int", nullable: false),
+                    OfferPurpose = table.Column<int>(type: "int", nullable: false),
                     Type = table.Column<int>(type: "int", nullable: false),
                     Price = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
                     BedroomsAvaiable = table.Column<short>(type: "smallint", nullable: false),
                     AvaiableFrom = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    AvaiableUntil = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    AvaiableUntil = table.Column<DateTime>(type: "datetime2", nullable: true),
                     OwnerOccupied = table.Column<bool>(type: "bit", nullable: false),
                     Preference = table.Column<bool>(type: "bit", nullable: true),
                     OwnerId = table.Column<long>(type: "bigint", nullable: false)
@@ -47,9 +47,9 @@ namespace Infrastructure.SqlServer.Migrations
                 {
                     table.PrimaryKey("PK_Properties", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_Properties_Clients_OwnerId",
+                        name: "FK_Properties_Users_OwnerId",
                         column: x => x.OwnerId,
-                        principalTable: "Clients",
+                        principalTable: "Users",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                 });
@@ -80,7 +80,7 @@ namespace Infrastructure.SqlServer.Migrations
                 {
                     Id = table.Column<long>(type: "bigint", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
-                    Format = table.Column<string>(type: "nvarchar(10)", maxLength: 10, nullable: false),
+                    Format = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     Data = table.Column<byte[]>(type: "varbinary(max)", nullable: false),
                     PropertyId = table.Column<long>(type: "bigint", nullable: false)
                 },
@@ -123,7 +123,7 @@ namespace Infrastructure.SqlServer.Migrations
                 name: "Properties");
 
             migrationBuilder.DropTable(
-                name: "Clients");
+                name: "Users");
         }
     }
 }

@@ -15,14 +15,14 @@ public class AsyncRepositoryBase<T> : IAsyncRepositoryBase<T>, IDisposable where
         _db = db;
     }
 
-    public async Task<T> AddAsync(T entity, CancellationToken token = default)
+    public virtual async Task<T> AddAsync(T entity, CancellationToken token = default)
     {
         Table.Add(entity);
         await SaveChangesAsync(token);
         return entity;
     }
 
-    public Task<bool> DeleteAsync(T entity, CancellationToken token = default)
+    public virtual Task<bool> DeleteAsync(T entity, CancellationToken token = default)
     {
         Table.Remove(entity);
         return SaveChangesAsync(token);
@@ -34,13 +34,25 @@ public class AsyncRepositoryBase<T> : IAsyncRepositoryBase<T>, IDisposable where
         GC.SuppressFinalize(this);
     }
 
-    public Task<List<T>> ListAsync(Expression<Func<T, bool>> expression, (int from, int qtty) pagination, CancellationToken token = default) =>
-        Table.Where(expression).Skip(pagination.from).Take(pagination.qtty).ToListAsync(token);
+    public virtual Task<List<T>> ListAsync(Expression<Func<T, bool>> expression, (int from, int qtty) pagination, CancellationToken token = default, params string[] includes)
+    {
+        return Execute(Table.Where(expression).Skip(pagination.from).Take(pagination.qtty), token, includes);
+    }
+    public virtual Task<List<T>> ListAsync((int from, int qtty) pagination, CancellationToken token = default, params string[] includes)
+    {
+        return Execute(Table.Skip(pagination.from).Take(pagination.qtty), token, includes);
+    }
 
-    public Task<List<T>> ListAsync((int from, int qtty) pagination, CancellationToken token = default) =>
-        Table.Skip(pagination.from).Take(pagination.qtty).ToListAsync(token);
+    protected static async Task<List<T>> Execute(IQueryable<T> query, CancellationToken token = default, params string[] includes)
+    {
+        foreach (var property in includes)
+        {
+            query = query.Include(property);
+        }
+        return await query.ToListAsync(token);
+    }
 
-    public Task<bool> UpdateAsync(T entity, CancellationToken token = default)
+    public virtual Task<bool> UpdateAsync(T entity, CancellationToken token = default)
     {
         Table.Update(entity);
         return SaveChangesAsync(token);

@@ -12,8 +12,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Infrastructure.SqlServer.Migrations
 {
     [DbContext(typeof(SqlServerContext))]
-    [Migration("20220208180821_AddedUserTable")]
-    partial class AddedUserTable
+    [Migration("20220311165839_InitialCreate")]
+    partial class InitialCreate
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
@@ -60,8 +60,7 @@ namespace Infrastructure.SqlServer.Migrations
 
                     b.Property<string>("Format")
                         .IsRequired()
-                        .HasMaxLength(10)
-                        .HasColumnType("nvarchar(10)");
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<long>("PropertyId")
                         .HasColumnType("bigint");
@@ -88,13 +87,13 @@ namespace Infrastructure.SqlServer.Migrations
                     b.Property<DateTime>("AvaiableFrom")
                         .HasColumnType("datetime2");
 
-                    b.Property<DateTime>("AvaiableUntil")
+                    b.Property<DateTime?>("AvaiableUntil")
                         .HasColumnType("datetime2");
 
                     b.Property<short>("BedroomsAvaiable")
                         .HasColumnType("smallint");
 
-                    b.Property<int>("Category")
+                    b.Property<int>("OfferPurpose")
                         .HasColumnType("int");
 
                     b.Property<long>("OwnerId")
@@ -108,10 +107,6 @@ namespace Infrastructure.SqlServer.Migrations
 
                     b.Property<decimal>("Price")
                         .HasColumnType("decimal(18,2)");
-
-                    b.Property<string>("Title")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
 
                     b.Property<int>("Type")
                         .HasColumnType("int");

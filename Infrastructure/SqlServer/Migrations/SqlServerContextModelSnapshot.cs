@@ -58,8 +58,7 @@ namespace Infrastructure.SqlServer.Migrations
 
                     b.Property<string>("Format")
                         .IsRequired()
-                        .HasMaxLength(10)
-                        .HasColumnType("nvarchar(10)");
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<long>("PropertyId")
                         .HasColumnType("bigint");
@@ -86,13 +85,13 @@ namespace Infrastructure.SqlServer.Migrations
                     b.Property<DateTime>("AvaiableFrom")
                         .HasColumnType("datetime2");
 
-                    b.Property<DateTime>("AvaiableUntil")
+                    b.Property<DateTime?>("AvaiableUntil")
                         .HasColumnType("datetime2");
 
                     b.Property<short>("BedroomsAvaiable")
                         .HasColumnType("smallint");
 
-                    b.Property<int>("Category")
+                    b.Property<int>("OfferPurpose")
                         .HasColumnType("int");
 
                     b.Property<long>("OwnerId")
@@ -106,10 +105,6 @@ namespace Infrastructure.SqlServer.Migrations
 
                     b.Property<decimal>("Price")
                         .HasColumnType("decimal(18,2)");
-
-                    b.Property<string>("Title")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
 
                     b.Property<int>("Type")
                         .HasColumnType("int");
