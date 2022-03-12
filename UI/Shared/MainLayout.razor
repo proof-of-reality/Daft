@@ -3,6 +3,7 @@
 @inherits LayoutComponentBase
 
 @inject ProtectedLocalStorage BrowserStorage
+@inject NavigationManager Navigator
 
 <PageTitle>Daft</PageTitle>
 
@@ -11,11 +12,11 @@
 		<div class="top-row px-8 bg-white">
 			<div class="container">
 				<div class="d-flex align-items-start">
-					<a href="/"><img src="Photos/logo.svg" class="link" alt="Daft.ie" style="width:5rem " /></a>
+					<a href="" @onclick="@(() => Navigator.NavigateTo("/", true))"><img src="Photos/logo.svg" class="link" alt="Daft.ie" style="width:5rem " /></a>
 
-					<a href="/Sell" class="text-black text-decoration-none">Sell</a>
-					<a href="/Rent" class="text-black text-decoration-none">Rent</a>
-					<a href="/Share" class="text-black text-decoration-none left">Share</a>
+					<a href="" @onclick="@(() => Navigator.NavigateTo("/Sell", true))" class="text-black text-decoration-none">Sell</a>
+					<a href="" @onclick="@(() => Navigator.NavigateTo("/Rent", true))" class="text-black text-decoration-none">Rent</a>
+					<a href="" @onclick="@(() => Navigator.NavigateTo("/Share", true))" class="text-black text-decoration-none left">Share</a>
 				</div>
 			</div>
 

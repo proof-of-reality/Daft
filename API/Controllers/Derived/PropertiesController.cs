@@ -13,10 +13,18 @@ namespace API.Controllers.Derived
         {
         }
 
+        public override Task<ActionResult<Property>> Post(Property entity, CancellationToken token)
+        {
+            entity.Owner = null;
+            return base.Post(entity, token);
+        }
+
         [HttpGet("", Name = "Main")]
         public async Task<ActionResult<IEnumerable<Property>>> Get([FromQuery] Search pag, CancellationToken token)
         {
-            return Ok(await _repository.ListAsync(p => (pag.Value == null || p.Price <= pag.Value) &&
+            return Ok(await _repository.ListAsync(p => 
+                            (pag.Value == null || p.Price <= pag.Value) &&
+                            (pag.Purpose == null || pag.Purpose == p.OfferPurpose) &&
                             (pag.Text == null || pag.Text.Contains(p.Address) || p.Address.Contains(pag.Text)), pag, token));
         }
 

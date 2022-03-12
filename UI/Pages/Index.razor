@@ -7,17 +7,18 @@
 
 @inherits ComponentAPI
 @inject NavigationManager Navigator
+@implements IDisposable
 
 <div class="row">
 	<div class="col">
 		<div class="input-group input-group" style="min-height:70px">
 			<span class="input-group-text "><i class="oi oi-magnifying-glass"></i><small>Dublin City</small></span>
-			<input type="text" class="form-control col-3" @bind="Purpose">
+			<input type="text" class="form-control col-3" @bind="addrSearch" @bind:event="oninput" @onkeydown="OnInput">
 		</div>
 	</div>
 	<div class="col">
 		<div class="input-group input-group" style="min-height:70px">
-			<input type="text" class="form-control" placeholder="Price">
+			<input type="text" class="form-control" placeholder="Price" @bind="valSearch" @bind:event="oninput" @onkeydown="OnInput">
 			<select type="text" class="form-control">
 				<option>Any room</option>
 				<option>Single</option>
@@ -35,7 +36,7 @@
 		if (_properties is null) _properties = new List<Property> { new Property("", OfferPurpose.Rent, PropertyType.Flat, 0) };
 		@foreach (var item in _properties)
 		{
-			<div role="button" @onclick="() => GoTo(item)" class="card mb-3" style="max-width: 740px;min-height:300px;min-width:480px">
+			<div role="button" @onclick="() => SeeDetails(item)" class="card mb-3" style="max-width: 740px;min-height:300px;min-width:480px">
 				<div class="row g-0">
 					<div class="col-md-8">
 						<picture>
@@ -55,7 +56,7 @@
 					</div>
 					<div class="col-md-4">
 						<div class="card-body align-content-center">
-							<h5 class="card-title fw-bold pt-5">€@item.Price per month</h5>
+							<h5 class="card-title fw-bold pt-5">€@(item.Price + (item.OfferPurpose == OfferPurpose.Sell ? "": " per month"))</h5>
 							<p class="card-text mb-1">@item.Address</p>
 							<p class="card-text align-text-top"><small class="text-muted">@item.OfferPurpose - @item.Type </small></p>
 						</div>
@@ -68,44 +69,81 @@
 </div>
 
 @code {
+	List<Property>? _properties;
+	CancellationTokenSource? src;
 
-    [Parameter] public string Purpose { get; set; }
+	string? addrSearch, valSearch;
+	Dictionary<long, Task<string>>? _getPhotosTasks;
 
-    List<Property> _properties;
-    Dictionary<long, Task<string>> _getPhotosTasks;
 
-    void GoTo(Property p) => Navigator.NavigateTo($"/details/{p.Id}");
+	[Parameter] public string Purpose { get; set; }
 
-    protected override async Task OnAfterRenderAsync(bool firstRender)
-    {
+	void SeeDetails(Property p) => Navigator.NavigateTo($"/details/{p.Id}");
+
+	private void OnInput(KeyboardEventArgs args)
+	{
+		src?.Cancel();
+		timer.Start();
+		src = new();
+	}
+
+	protected override async Task OnAfterRenderAsync(bool firstRender)
+	{
 		await base.OnAfterRenderAsync(firstRender);
 
 		if (_getPhotosTasks is null) return;
 		foreach (var (key, task) in _getPhotosTasks)
 		{
+			if ((src?.Token.IsCancellationRequested ?? false)) return;
 			var photos = JsonConvert.DeserializeObject<List<Photo>>(await task)!;
 
-			var prop = _properties.Find(p => p.Id == key);
-			photos.ForEach(prop.Add);
+			var prop = _properties!.Find(p => p.Id == key);
+			photos.ForEach(prop!.Add);
 		}
 		_getPhotosTasks = null;
 	}
 
-	protected override async Task OnInitializedAsync()
+	async Task Search()
 	{
 		using var api = Endpoint("Properties");
-		var strProps = await api.GetStringAsync("?from=0&quantity=20");
+
+		var strProps = await api.GetStringAsync($"?quantity=20&Text={addrSearch}&Value={valSearch}&purpose={Purpose}", src?.Token ?? CancellationToken.None);
 		_properties = JsonConvert.DeserializeObject<List<Property>>(strProps)!;
 
 		StateHasChanged();
+		timer.Stop();
 
 		_getPhotosTasks = _properties.ToDictionary(p => p.Id, async p =>
 		{
 			using var photosAPI = Endpoint("Photos");
 			await Task.Delay(Random.Shared.Next(200, 500));
 			p.PhotosChanged += (_, _) => InvokeAsync(StateHasChanged);
-			return await photosAPI.GetStringAsync($"/property/{p.Id}", CancellationToken.None);
+			return await photosAPI.GetStringAsync($"/property/{p.Id}", src?.Token ?? CancellationToken.None);
 		});
+	}
+
+	System.Timers.Timer timer = new(200);
+	protected override async Task OnInitializedAsync()
+	{
+		await Search();
 		await base.OnInitializedAsync();
+		timer.Elapsed += async (_, _) =>
+		{
+			try
+			{
+				Console.Write(".");
+				if ((src?.Token.IsCancellationRequested ?? false)) return;
+				await InvokeAsync(Search);
+			}
+			catch
+			{
+			}
+		};
+	}
+
+	public void Dispose()
+	{
+		src?.Dispose();
+		timer?.Dispose();
 	}
 }
