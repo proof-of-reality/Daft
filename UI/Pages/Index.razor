@@ -2,6 +2,8 @@
 @page "/{Purpose}"
 @using Core.Models
 @using System.Text.Json;
+@using Newtonsoft.Json
+@using System.Collections.Concurrent
 
 @inherits ComponentAPI
 @inject NavigationManager Navigator
@@ -28,26 +30,40 @@
 </div>
 <br />
 <div class="container">
-	@foreach (var item in (_properties ?? new List<Property>() { new("", OfferPurpose.Rent, PropertyType.Appartment, 0) }))
+	@if (true)
 	{
-		<div role="button" @onclick="() => GoTo(item)" class="card mb-3" style="max-width: 740px;min-height:300px;min-width:480px">
-			<div class="row g-0">
-				<div class="col-md-8">
-					<picture>
-						<source srcset="/Photos" type="image/svg+xml+webp">
-						<img src="data:image/webp;base64, @((string)item.Photos.First())" class="img-fluid" style="min-height:300px;min-width:480px" alt="photo">
-					</picture>
-				</div>
-				<div class="col-md-4">
-					<div class="card-body align-content-center">
-						<h5 class="card-title fw-bold pt-5">€@item.Price per month</h5>
-						<p class="card-text mb-1">@item.Address</p>
-						<p class="card-text align-text-top"><small class="text-muted">@item.OfferPurpose - @item.Type </small></p>
+		if (_properties is null) _properties = new List<Property> { new Property("", OfferPurpose.Rent, PropertyType.Flat, 0) };
+		@foreach (var item in _properties)
+		{
+			<div role="button" @onclick="() => GoTo(item)" class="card mb-3" style="max-width: 740px;min-height:300px;min-width:480px">
+				<div class="row g-0">
+					<div class="col-md-8">
+						<picture>
+							@*<source srcset="/Photos" type="image/svg+xml+webp">*@
+							@if (!item.Photos.Any())
+							{
+								<div class="d-flex justify-content-center text-center mt-5" style="min-height:300px;min-width:480px">
+									<div class="spinner-border" role="status"></div>
+								</div>
+							}
+							else
+							{
+								var photo = item.Photos.First();
+								<img src="data:@(photo.Format);base64, @((string)photo)" class="img-fluid" style="min-height:300px;min-width:480px" alt="photo">
+							}
+						</picture>
+					</div>
+					<div class="col-md-4">
+						<div class="card-body align-content-center">
+							<h5 class="card-title fw-bold pt-5">€@item.Price per month</h5>
+							<p class="card-text mb-1">@item.Address</p>
+							<p class="card-text align-text-top"><small class="text-muted">@item.OfferPurpose - @item.Type </small></p>
+						</div>
 					</div>
 				</div>
 			</div>
-		</div>
-		<br />
+			<br />
+		}
 	}
 </div>
 
@@ -57,49 +73,39 @@
 
 	List<Property> _properties;
 
-	private static List<Property> _props = new()
+	void GoTo(Property p) => Navigator.NavigateTo($"/details/{p.Id}", true);
+
+	protected override async Task OnAfterRenderAsync(bool firstRender)
+	{
+		await base.OnAfterRenderAsync(firstRender);
+
+		if (_getPhotosTasks is null) return;
+		foreach (var (key, task) in _getPhotosTasks)
 		{
-			new("Smithfield", OfferPurpose.Share, PropertyType.Appartment, 500),
-			new("D08 A245", OfferPurpose.Sell, PropertyType.Appartment, 340),
-			new("D12 V271", OfferPurpose.Share, PropertyType.Flat, 390),
-			new("Temple bar D2 A456", OfferPurpose.Share, PropertyType.Appartment, 700),
-			new("D08 A245", OfferPurpose.Rent, PropertyType.House, 340),
-			new("D12 V271", OfferPurpose.Rent, PropertyType.Appartment, 390),
-		};
+			var photos = JsonConvert.DeserializeObject<List<Photo>>(await task)!;
 
-	void GoTo(Property p)
-	{
-		Navigator.NavigateTo($"/details/{p.Id}");
+			var prop = _properties.Find(p => p.Id == key);
+			photos.ForEach(prop.Add);
+		}
 	}
 
-	protected override Task OnAfterRenderAsync(bool firstRender)
-	{
-		_properties = new(_props.Where(p => Purpose == null || p.OfferPurpose.ToString().Equals(Purpose)).ToList());
-		StateHasChanged();
-		return base.OnAfterRenderAsync(firstRender);
-	}
+	Dictionary<long, Task<string>> _getPhotosTasks;
 
 	protected override async Task OnInitializedAsync()
 	{
 		using var api = Endpoint("Properties");
-		var test = await api.GetFromJsonAsync<IEnumerable<Property>>("");
-		_properties = new(_props);
-		//var props = (await api.GetFromJsonAsync<List<Property>>(string.Empty));
-		//if (props.Any()) _properties = props;
+		var strProps = await api.GetStringAsync("?from=0&quantity=20");
+		_properties = JsonConvert.DeserializeObject<List<Property>>(strProps)!;
 
-		//just for testing
-		_props.ForEach(p =>
+		StateHasChanged();
+
+		_getPhotosTasks = _properties.ToDictionary(p => p.Id, async p =>
 		{
-			var src = $"wwwroot/Photos/{Random.Shared.Next(1, 6)}.webp";
-			var data = File.ReadAllBytes(src);
-			var photo = new Photo(data, "webp");
-			p.Add(photo);
+			using var photosAPI = Endpoint("Photos");
+			await Task.Delay(Random.Shared.Next(200, 500));
+			p.PhotosChanged += (_, _) => InvokeAsync(StateHasChanged);
+			return await photosAPI.GetStringAsync($"/property/{p.Id}", CancellationToken.None);
 		});
-
-		_properties = new(_props.ToList());
-
-		// test-end
-
 		await base.OnInitializedAsync();
 	}
 }
