@@ -69,14 +69,15 @@
 
 @code {
 
-	[Parameter] public string Purpose { get; set; }
+    [Parameter] public string Purpose { get; set; }
 
-	List<Property> _properties;
+    List<Property> _properties;
+    Dictionary<long, Task<string>> _getPhotosTasks;
 
-	void GoTo(Property p) => Navigator.NavigateTo($"/details/{p.Id}", true);
+    void GoTo(Property p) => Navigator.NavigateTo($"/details/{p.Id}");
 
-	protected override async Task OnAfterRenderAsync(bool firstRender)
-	{
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
 		await base.OnAfterRenderAsync(firstRender);
 
 		if (_getPhotosTasks is null) return;
@@ -87,9 +88,8 @@
 			var prop = _properties.Find(p => p.Id == key);
 			photos.ForEach(prop.Add);
 		}
+		_getPhotosTasks = null;
 	}
-
-	Dictionary<long, Task<string>> _getPhotosTasks;
 
 	protected override async Task OnInitializedAsync()
 	{

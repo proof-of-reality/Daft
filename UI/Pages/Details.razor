@@ -10,27 +10,36 @@
 <div class="container">
 	<div class="row g-0">
 		<div class="col-md-8">
-			<picture>
-				<source srcset="wwwroot/Photos" type="image/svg+xml+webp">
-				<img src="data:image/webp;base64, @((string)property.Photos.First())" class="img-fluid" style="min-height:300px;min-width:480px" alt="photo">
-			</picture>
+			@if (!(property?.Photos.Any() ?? false))
+			{
+				<div class="d-flex justify-content-center text-center mt-5" style="min-height:300px;min-width:480px">
+					<div class="spinner-border" role="status"></div>
+				</div>
+			}
+			else
+			{
+				<picture>
+					@*<source srcset="wwwroot/Photos" type="image/svg+xml+webp">*@
+					<img src="data:image/webp;base64, @((string)property.Photos.First())" class="img-fluid" style="min-height:300px;min-width:480px" alt="photo">
+				</picture>
+			}
 		</div>
 	</div>
 </div>
 <div class="row bg-white">
 	<div class="container p-5">
-		<h4 class="fw-bold ">€@property.Price per month</h4>
-		<h6 class="mb-1">@property.Address</h6>
-		<h6 class="align-text-top"><small class="text-muted">@property.OfferPurpose - @property.Type </small></h6>
+		<h4 class="fw-bold ">€@PreRender(property?.Price) per month</h4>
+		<h6 class="mb-1">@(property?.Address ?? "***")</h6>
+		<h6 class="align-text-top"><small class="text-muted">@PreRender(property?.OfferPurpose) - @PreRender((property?.Type)) </small></h6>
 		<br />
 		<hr class="bg-black border-2 border-top ">
 		<h4>Property Overview</h4>
 		<br />
 
-		<h6 class="fw-bold">Bedrooms Avaiable: <span class="fw-normal">@property.BedroomsAvaiable</span></h6>
-		<h6 class="fw-bold">Avaiable From:  <span class="fw-normal">@property.AvaiableFrom.ToString("dd/MM/yyyy")</span></h6>
+		<h6 class="fw-bold">Bedrooms Avaiable: <span class="fw-normal">@PreRender(property?.BedroomsAvaiable)</span></h6>
+		<h6 class="fw-bold">Avaiable From:  <span class="fw-normal">@PreRender(property?.AvaiableFrom.ToString("dd/MM/yyyy"))</span></h6>
 		<h6 class="fw-bold">Avaiable For:  <span class="fw-normal">@AvaiableFor()</span></h6>
-		<h6 class="fw-bold">Owner Occupied:  <span class="fw-normal">@(property.OwnerOccupied ? "Yes": "No")</span></h6>
+		<h6 class="fw-bold">Owner Occupied:  <span class="fw-normal">@PreRender(property is null ? null : property.OwnerOccupied ? "Yes": "No")</span></h6>
 		<h6 class="fw-bold">Preference:  <span class="fw-normal">@Preference</span></h6>
 		<br />
 		<hr class="bg-black border-2 border-top ">
@@ -39,9 +48,12 @@
 		<h4>Facilities</h4>
 		<br />
 		<ul>
-			@foreach (var item in property.Facilities)
+			@if (property is not null)
 			{
-				<li>@item.Text</li>
+				@foreach (var item in property.Facilities)
+				{
+					<li>@item.Text</li>
+				}
 			}
 		</ul>
 		<br />
@@ -50,20 +62,21 @@
 		<h4>Contact Details</h4>
 		<br />
 
-		<h6 class="fw-bold">Email: <span class="fw-normal">@property.Owner.Email</span></h6>
-		<button @onclick="@(() => Modal.Show<SendEmailModal>($"Email {property.Owner.Email}"))" class="btn btn-primary">Email</button>
+		<h6 class="fw-bold">Email: <span class="fw-normal">@PreRender(property?.Owner.Email)</span></h6>
+		<button @onclick="@(() => Modal.Show<SendEmailModal>($"Email {property!.Owner.Email}"))" class="btn btn-primary @(property is not null ? "enabled":"disabled")">Email</button>
 	</div>
 </div>
 
 @code {
-	Property property;
+	Property? property;
 
 	[Parameter] public long Id { get; set; }
 	[CascadingParameter] public IModalService Modal { get; set; }
 
-	string Preference => !property.Preference.HasValue ? "Male/Female" : property.Preference.Value ? "Male" : "Female";
+	string Preference => (property is null || !property!.Preference.HasValue) ? "Male/Female" : property.Preference.Value ? "Male" : "Female";
 	string AvaiableFor()
 	{
+		if (property is null) return PreRender(property);
 		var days = ((property.AvaiableUntil ?? DateTime.Now.AddYears(1)) - property.AvaiableFrom).TotalDays;
 		return days switch
 		{
@@ -73,18 +86,14 @@
 		};
 	}
 
+	string PreRender(object? obj) => obj?.ToString() ?? "***";
+
 	protected override async Task OnInitializedAsync()
 	{
-		await base.OnInitializedAsync();
-		using var api = Endpoint("Properties");
+		using var api = Endpoint("Properties/");
+		var serialized = await api.GetStringAsync(Id.ToString());
+		property = Newtonsoft.Json.JsonConvert.DeserializeObject<Property>(serialized);
 
-		try
-		{
-			var serialized = await api.GetStringAsync(Id.ToString());
-			property ??= Newtonsoft.Json.JsonConvert.DeserializeObject<Property>(serialized);
-		}
-		catch(Exception ex)
-		{
-		}
+		await base.OnInitializedAsync();
 	}
 }

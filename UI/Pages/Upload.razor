@@ -144,20 +144,6 @@
 
 		var response = await api.PostAsJsonAsync("", Property, opts);
 
-		//if (!response.IsSuccessStatusCode)
-		//{
-		//	var badRequest = await response.Content.ReadFromJsonAsync<BadRequest>()!;
-
-		//	foreach(var (field, error) in badRequest)
-		//	{
-		//		var Field = editContext.Field(field);
-		//		var a = editContext.EnableDataAnnotationsValidation();
-		//		a.
-				
-		//	}
-		//}
-
-		//response.EnsureSuccessStatusCode();
 		this.Navigator.NavigateTo("/");
 	}
 
