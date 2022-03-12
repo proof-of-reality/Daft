@@ -3,6 +3,8 @@
 @using Core.Models
 @using System.Text.Json;
 
+@inherits ComponentAPI
+
 <PageTitle>Details</PageTitle>
 
 <div class="container">
@@ -59,8 +61,6 @@
 	[Parameter] public long Id { get; set; }
 	[CascadingParameter] public IModalService Modal { get; set; }
 
-	Task? _getFacilitiesTask;
-
 	string Preference => !property.Preference.HasValue ? "Male/Female" : property.Preference.Value ? "Male" : "Female";
 	string AvaiableFor()
 	{
@@ -73,40 +73,18 @@
 		};
 	}
 
-	async Task GetFacilities()
+	protected override async Task OnInitializedAsync()
 	{
-		// fake calling to API
-		await Task.Delay(1000);
+		await base.OnInitializedAsync();
+		using var api = Endpoint("Properties");
 
-		property.Add(new Facility("Shower"));
-		property.Add(new Facility("Garage"));
-		property.Add(new Facility("Heater"));
-	}
-
-	protected override async Task OnAfterRenderAsync(bool firstRender)
-	{
-		if (!firstRender) return;
-		await (_getFacilitiesTask ?? Task.CompletedTask);
-		StateHasChanged();
-		await base.OnAfterRenderAsync(firstRender);
-	}
-
-	protected override Task OnInitializedAsync()
-	{
-		// simulate searching database
-		// property = await client.GetByAsync(Id);
-		_getFacilitiesTask = GetFacilities();
-
-		property ??= new Property("Wynnefield Park, Wynnefield Road, Rathmine, Rathmines, Dublin 6", OfferPurpose.Share, PropertyType.Appartment, 400);
-		property.BedroomsAvaiable = 2;
-		property.AvaiableFrom = DateTime.Now;
-		property.AvaiableUntil = property.AvaiableFrom.AddMonths(3);
-
-		property.Add(new Photo($"wwwroot/Photos/{Random.Shared.Next(1, 6)}.webp"));
-		property.Add(new Photo($"wwwroot/Photos/{Random.Shared.Next(1, 6)}.webp"));
-
-		property.Owner = new Core.Models.Client("", "", "username@gmail.com", "password");
-
-		return base.OnInitializedAsync();
+		try
+		{
+			var serialized = await api.GetStringAsync(Id.ToString());
+			property ??= Newtonsoft.Json.JsonConvert.DeserializeObject<Property>(serialized);
+		}
+		catch(Exception ex)
+		{
+		}
 	}
 }

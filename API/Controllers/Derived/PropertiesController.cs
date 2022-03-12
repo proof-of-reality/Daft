@@ -12,7 +12,7 @@ namespace API.Controllers.Derived
 
 		public override async Task<ActionResult<Property>> GetAsync(int id, CancellationToken token = default)
 		{
-            return Ok(await ((IAsyncRepository<Property>)_repository).GetAsync(id, token, "Photos", "Facilities"));
+            return Ok(await ((IAsyncRepository<Property>)_repository).GetAsync(id, token, "Photos", "Facilities", "Owner"));
         }
     }
 }

@@ -37,7 +37,8 @@ public class Photo : Identifiable
         get => _prop!;
         set
         {
-            _prop = value ?? throw new ArgumentException("Cannot be null", nameof(Property));
+            if (value is null) return;
+            _prop = value /*?? throw new ArgumentException("Cannot be null", nameof(Property))*/;
             PropertyId = value.Id;
         }
     }
