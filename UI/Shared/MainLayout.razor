@@ -52,7 +52,6 @@
 		if (strUser is null) return;
 		var user = JsonConvert.DeserializeObject<Core.Models.Client>(strUser);
 
-		//var user = (await BrowserStorage.GetAsync<Core.Models.Client>(nameof(Core.Models.Client).ToLower())).Value;
 		if (_user is null && user is not null)
 		{
 			_user = user;
