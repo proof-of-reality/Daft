@@ -1,13 +1,21 @@
+using System.Reflection;
 using Core.Interfaces;
 using Core.Models;
 using Infrastructure.SqlServer;
 using Newtonsoft.Json;
+using Newtonsoft.Json.Serialization;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 builder.Services.AddControllers()
-    .AddNewtonsoftJson(opt => opt.SerializerSettings.ReferenceLoopHandling = ReferenceLoopHandling.Ignore);
+    .AddNewtonsoftJson(opt =>
+    {
+        opt.SerializerSettings.ReferenceLoopHandling = ReferenceLoopHandling.Ignore;
+        opt.SerializerSettings.ContractResolver = new UserConverter();
+    });
+
+
 //.AddJsonOptions(o => o.JsonSerializerOptions.Configure());
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
@@ -26,17 +34,6 @@ if (app.Environment.IsDevelopment())
 
 app.UseSwaggerUI();
 app.UseHttpsRedirection();
-//app.Use(async (context, next) =>
-//{
-//	try
-//	{
-//        await next();
-//	}
-//	catch (global::System.Exception ex)
-//	{
-//        Console.WriteLine(ex.ToString());
-//	}
-//});
 
 app.UseAuthorization();
 
@@ -44,23 +41,16 @@ app.MapControllers();
 
 app.Run();
 
-
-static void AddTestData(SqlServerContext context)
+class UserConverter : DefaultContractResolver
 {
-    var otavio = new Client("otoavbio", "nunes", "vojnedofin@gmail.com", "12876137987");
-    var bruna = new Client("bruna", "albuqyerer", "bruna@gmail.com", "1333308233");
+    protected override JsonProperty CreateProperty(MemberInfo member, MemberSerialization memberSerialization)
+    {
+        JsonProperty property = base.CreateProperty(member, memberSerialization);
 
-    var flat = new Property("a274", OfferPurpose.Rent, PropertyType.Flat, 370);
-    otavio.Add(flat);
-
-    var appartment = new Property("d15a274", OfferPurpose.Rent, PropertyType.Appartment, 590);
-    bruna.Add(appartment);
-
-    context.Clients.Add(otavio);
-    context.Clients.Add(bruna);
-
-    context.Properties.Add(flat);
-    context.Properties.Add(appartment);
-
-    context.SaveChanges();
+        if (property.DeclaringType == typeof(User) && property.PropertyName == "Password")
+        {
+            property.ShouldSerialize = _ => false;
+        }
+        return property;
+    }
 }
