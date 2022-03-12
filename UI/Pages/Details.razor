@@ -63,7 +63,7 @@
 		<br />
 
 		<h6 class="fw-bold">Email: <span class="fw-normal">@PreRender(property?.Owner.Email)</span></h6>
-		<button @onclick="@(() => Modal.Show<SendEmailModal>($"Email {property!.Owner.Email}"))" class="btn btn-primary @(property is not null ? "enabled":"disabled")">Email</button>
+		<button @onclick="ShowModal" class="btn btn-primary @(property is not null ? "enabled":"disabled")">Email</button>
 	</div>
 </div>
 
@@ -72,6 +72,14 @@
 
 	[Parameter] public long Id { get; set; }
 	[CascadingParameter] public IModalService Modal { get; set; }
+
+	void ShowModal()
+	{
+		var parameters = new ModalParameters();
+		parameters.Add(nameof(Photo.PropertyId), property!.Id);
+		parameters.Add(nameof(Core.Models.Client.Email), property!.Owner.Email);
+		Modal.Show<SendEmailModal>($"Email somebody@gmail.com", parameters);
+	}
 
 	string Preference => (property is null || !property!.Preference.HasValue) ? "Male/Female" : property.Preference.Value ? "Male" : "Female";
 	string AvaiableFor()
@@ -93,7 +101,6 @@
 		using var api = Endpoint("Properties/");
 		var serialized = await api.GetStringAsync(Id.ToString());
 		property = Newtonsoft.Json.JsonConvert.DeserializeObject<Property>(serialized);
-
 		await base.OnInitializedAsync();
 	}
 }

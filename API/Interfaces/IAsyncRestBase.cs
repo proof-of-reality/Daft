@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Core.Models.Requests;
+using Microsoft.AspNetCore.Mvc;
 
 namespace API.Interfaces;
 
@@ -8,7 +9,7 @@ public interface IAsyncRestBase<T> where T : class
     public Task<ActionResult<T>> Post(T entity, CancellationToken token);
 
     [HttpGet]
-    public Task<ActionResult<IEnumerable<T>>> Get(int from, int quantity, CancellationToken token);
+    public Task<ActionResult<IEnumerable<T>>> Get(Pagination pag, CancellationToken token);
 
     [HttpPatch]
     public Task<ActionResult<bool>> Patch(T entity, CancellationToken token);

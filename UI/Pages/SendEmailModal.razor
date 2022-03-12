@@ -1,35 +1,44 @@
-﻿@using System.ComponentModel.DataAnnotations
+﻿@using Core.Models.Requests
 
-<EditForm Model="request" OnSubmit="MakeRequest" class="m-3" style="min-width:50%">
+@inherits ComponentAPI
+
+<EditForm Model="request" OnSubmit="SendRequest" class="m-3" style="min-width:50%">
 	<div class="mb-3">
 		<label class="form-label">Email address</label>
-		<input type="email" class="form-control mw-100" placeholder="name@example.com">
+		<input type="email" @bind-value="request.Email" class="form-control mw-100" placeholder="name@example.com">
 	</div>
 	<div class="mb-3">
 		<label class="form-label">Text</label>
-		<textarea class="form-control" rows="3"></textarea>
+		<textarea @bind="request.Text" class="form-control" rows="3"></textarea>
 	</div>
 	<button class="btn btn-primary align-content-end">Submit</button>
 </EditForm>
 
 @code {
 
-	Request request = new();
+	EmailRequest request = new();
 
-	class Request
+	[Parameter] public string Email { get; set; }
+	[Parameter] public long PropertyId { get; set; }
+
+	[CascadingParameter] public BlazoredModalInstance thisModal { get; set; }
+
+	protected override Task OnInitializedAsync()
 	{
-		[Required]
-		[EmailAddress]
-		public string Email { get; set; } = string.Empty;
-
-		[Required]
-		[MinLength(10)]
-		public string Text { get; set; } = string.Empty;
+		request.EmailTo = Email;
+		request.PropertyId = PropertyId;
+		return base.OnInitializedAsync();
 	}
 
-
-	void MakeRequest()
+	async Task SendRequest()
 	{
-		Task.Delay(200);
+		using var api = Endpoint("Properties/");
+		var response = await api.PostAsJsonAsync("Email", request);
+
+		if (response.IsSuccessStatusCode)
+		{
+			var serialized = await response.Content.ReadAsStringAsync();
+			await thisModal.CloseAsync(ModalResult.Ok(serialized));
+		}
 	}
 }

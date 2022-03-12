@@ -1,5 +1,6 @@
 ﻿using System.Linq.Expressions;
 using Core.Interfaces;
+using Core.Models.Requests;
 using Microsoft.EntityFrameworkCore;
 
 namespace Infrastructure.SqlServer;
@@ -34,13 +35,13 @@ public class AsyncRepositoryBase<T> : IAsyncRepositoryBase<T>, IDisposable where
         GC.SuppressFinalize(this);
     }
 
-    public virtual Task<List<T>> ListAsync(Expression<Func<T, bool>> expression, (int from, int qtty) pagination, CancellationToken token = default, params string[] includes)
+    public virtual Task<List<T>> ListAsync(Expression<Func<T, bool>> expression, Pagination pagination, CancellationToken token = default, params string[] includes)
     {
-        return Execute(Table.Where(expression).Skip(pagination.from).Take(pagination.qtty), token, includes);
+        return Execute(Table.Where(expression).Skip(pagination.From).Take(pagination.Quantity), token, includes);
     }
-    public virtual Task<List<T>> ListAsync((int from, int qtty) pagination, CancellationToken token = default, params string[] includes)
+    public virtual Task<List<T>> ListAsync(Pagination pagination, CancellationToken token = default, params string[] includes)
     {
-        return Execute(Table.Skip(pagination.from).Take(pagination.qtty), token, includes);
+        return Execute(Table.Skip(pagination.From).Take(pagination.Quantity), token, includes);
     }
 
     protected static async Task<List<T>> Execute(IQueryable<T> query, CancellationToken token = default, params string[] includes)

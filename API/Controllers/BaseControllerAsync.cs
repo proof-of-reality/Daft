@@ -1,5 +1,6 @@
 ﻿using API.Interfaces;
 using Core.Interfaces;
+using Core.Models.Requests;
 using Microsoft.AspNetCore.Mvc;
 
 namespace API.Controllers;
@@ -20,8 +21,8 @@ public class BaseControllerAsync<T> : ControllerBase, IAsyncRestBase<T> where T 
         ModelState.IsValid ? Ok(await _repository.DeleteAsync(entity, token)) : BadRequest(ModelState.ValidationState);
 
     [HttpGet]
-    public virtual async Task<ActionResult<IEnumerable<T>>> Get(int from, int quantity, CancellationToken token) =>
-        ModelState.IsValid ? Ok(await _repository.ListAsync((from, quantity), token)) : BadRequest(ModelState.ValidationState);
+    public virtual async Task<ActionResult<IEnumerable<T>>> Get([FromQuery] Pagination pag, CancellationToken token) =>
+        ModelState.IsValid ? Ok(await _repository.ListAsync(pag, token)) : BadRequest(ModelState.ValidationState);
 
     [HttpPatch]
     public virtual async Task<ActionResult<bool>> Patch(T entity, CancellationToken token) =>
