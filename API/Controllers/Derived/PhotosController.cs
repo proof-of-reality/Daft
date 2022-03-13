@@ -1,10 +1,11 @@
 ﻿using Core.Interfaces;
 using Core.Models;
+using Core.Models.Requests;
 using Microsoft.AspNetCore.Mvc;
 
 namespace API.Controllers.Derived;
 
-public class PhotosController : ControllerAsync<Photo>
+public class PhotosController : ControllerAsync<Photo, Pagination>
 {
     public PhotosController(IAsyncRepository<Photo> repo) : base(repo)
     {

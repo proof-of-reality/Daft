@@ -18,9 +18,10 @@
 			}
 			else
 			{
+				var photo = property.Photos.First();
 				<picture>
 					@*<source srcset="wwwroot/Photos" type="image/svg+xml+webp">*@
-					<img src="data:image/webp;base64, @((string)property.Photos.First())" class="img-fluid" style="min-height:300px;min-width:480px" alt="photo">
+					<img src="data:@(photo.Format);base64, @((string)photo)" class="img-fluid" style="min-height:300px;min-width:480px" alt="photo">
 				</picture>
 			}
 		</div>
@@ -48,12 +49,9 @@
 		<h4>Facilities</h4>
 		<br />
 		<ul>
-			@if (property is not null)
+			@foreach (var item in property?.Facilities ?? new Facility[0])
 			{
-				@foreach (var item in property.Facilities)
-				{
-					<li>@item.Text</li>
-				}
+				<li>@item.Text</li>
 			}
 		</ul>
 		<br />

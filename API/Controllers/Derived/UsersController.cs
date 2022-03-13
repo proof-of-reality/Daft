@@ -1,10 +1,11 @@
 ﻿using Core.Interfaces;
 using Core.Models;
+using Core.Models.Requests;
 using Microsoft.AspNetCore.Mvc;
 
 namespace API.Controllers.Derived;
 
-public class UsersController : ControllerAsync<Client>
+public class UsersController : ControllerAsync<Client, Pagination>
 {
     public UsersController(IAsyncRepository<Client> repo) : base(repo)
     {

@@ -1,11 +1,12 @@
 ﻿using API.Interfaces;
 using Core.Interfaces;
 using Core.Models;
+using Core.Models.Requests;
 using Microsoft.AspNetCore.Mvc;
 
 namespace API.Controllers;
 
-public class ControllerAsync<T> : BaseControllerAsync<T>, IAsyncRest<T> where T : Identifiable
+public class ControllerAsync<T, Search> : BaseControllerAsync<T, Search>, IAsyncRest<T> where T : Identifiable where Search : Pagination
 {
     protected IAsyncRepository<T> Repository => (IAsyncRepository<T>)_repository;
 

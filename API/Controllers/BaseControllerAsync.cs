@@ -7,10 +7,14 @@ namespace API.Controllers;
 
 [ApiController]
 [Route("api/[controller]")]
-public class BaseControllerAsync<T> : ControllerBase, IAsyncRestBase<T> where T : class
+public class BaseControllerAsync<T, Search> : ControllerBase, IAsyncRestBase<T, Search> where T : class where Search : Pagination
 {
     protected readonly IAsyncRepositoryBase<T> _repository;
 
+    /// <summary>
+    /// Class constructor injected by .NET 6 framework
+    /// </summary>
+    /// <param name="repository"></param>
     public BaseControllerAsync(IAsyncRepositoryBase<T> repository)
     {
         _repository = repository;
@@ -21,7 +25,7 @@ public class BaseControllerAsync<T> : ControllerBase, IAsyncRestBase<T> where T 
         ModelState.IsValid ? Ok(await _repository.DeleteAsync(entity, token)) : BadRequest(ModelState.ValidationState);
 
     [HttpGet]
-    public virtual async Task<ActionResult<IEnumerable<T>>> Get([FromQuery] Pagination pag, CancellationToken token) =>
+    public virtual async Task<ActionResult<IEnumerable<T>>> Get([FromQuery] Search pag, CancellationToken token) =>
         ModelState.IsValid ? Ok(await _repository.ListAsync(pag, token)) : BadRequest(ModelState.ValidationState);
 
     [HttpPatch]
