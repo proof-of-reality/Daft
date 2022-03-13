@@ -33,6 +33,11 @@ namespace Core.Interfaces
         /// <returns></returns>
         public Task<List<T>> ListAsync(Expression<Func<T, bool>> expression, Pagination pagination, CancellationToken token = default, params string[] includes);
 
+        /// <summary>
+        /// Get all elements specified by Pagination object
+        /// </summary>
+        /// <param name="expression">Query</param>
+        /// <returns></returns>
         public Task<List<T>> ListAsync(Pagination pagination, CancellationToken token = default, params string[] includes);
     }
 }

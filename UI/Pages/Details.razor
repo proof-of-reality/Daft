@@ -76,7 +76,7 @@
 		var parameters = new ModalParameters();
 		parameters.Add(nameof(Photo.PropertyId), property!.Id);
 		parameters.Add(nameof(Core.Models.Client.Email), property!.Owner.Email);
-		Modal.Show<SendEmailModal>($"Email somebody@gmail.com", parameters);
+		Modal.Show<SendEmailModal>($"Email {property.Owner.Email}", parameters);
 	}
 
 	string Preference => (property is null || !property!.Preference.HasValue) ? "Male/Female" : property.Preference.Value ? "Male" : "Female";
