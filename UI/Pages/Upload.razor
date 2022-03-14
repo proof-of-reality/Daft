@@ -98,7 +98,7 @@
 					@foreach (var photo in Property.Photos)
 					{
 						<button type="button" @onclick="() => Property.Remove(photo)" class="btn-close" style="width:150px;height:150px" aria-label="Close">
-							<img src="data:image/webp;base64, @((string)photo)" style="width:150px;height:150px" class="rounded float-start" alt="photo">
+							<img src="data:@(photo.Format);base64, @((string)photo)" style="width:150px;height:150px" class="rounded float-start" alt="photo">
 						</button>
 					}
 				</div>
