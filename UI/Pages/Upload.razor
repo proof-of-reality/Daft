@@ -90,7 +90,7 @@
 				<label class="form-label">Photos</label>
 				<div class="row">
 					<div class="col m-1 ">
-						<InputFile @onclick="() => Property.Photos.ToList().ForEach(Property.Remove)" OnChange="async e => await LoadFiles(e)" multiple class="form-control"></InputFile>
+						<InputFile @onclick="() => Property.Photos.ToList().ForEach(Property.Remove)" OnChange="e => LoadFiles(e)" multiple class="form-control"></InputFile>
 						<ValidationMessage For="@(() => Property.Photos)" />
 					</div>
 				</div>
@@ -122,10 +122,11 @@
 		var files = e.GetMultipleFiles();
 		foreach (var file in files)
 		{
-			var photo = new Photo(new byte[file.Size], file.ContentType);
+			using var ms = new MemoryStream();
+			using var stream = file.OpenReadStream(maxAllowedSize: file.Size);
 
-			using var stream = file.OpenReadStream(maxAllowedSize: 10 * 1024 * 1024);
-			await stream.ReadAsync(photo.Data, 0, (int)file.Size);
+			await stream.CopyToAsync(ms);
+			var photo = new Photo(ms.ToArray(), file.ContentType);
 			Property.Add(photo);
 		}
 	}
