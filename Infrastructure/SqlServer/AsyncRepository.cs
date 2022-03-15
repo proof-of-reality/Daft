@@ -9,14 +9,14 @@ public class AsyncRepository<T> : AsyncRepositoryBase<T>, IAsyncRepository<T> wh
     {
     }
 
-    public virtual Task<bool> DeleteAsync(int id, CancellationToken token = default)
+    public virtual Task<bool> DeleteAsync(long id, CancellationToken token = default)
     {
         var t = Table.First(t => t.Id == id);
         Table.Remove(t);
         return SaveChangesAsync(token);
     }
 
-    public virtual async Task<T> GetAsync(int id, CancellationToken token = default, params string[] includes)
+    public virtual async Task<T> GetAsync(long id, CancellationToken token = default, params string[] includes)
     {
         return (await Execute(Table.Where(e => e.Id == id).Take(1), token, includes)).First();
     }

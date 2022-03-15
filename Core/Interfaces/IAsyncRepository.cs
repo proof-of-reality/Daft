@@ -9,12 +9,12 @@ public interface IAsyncRepository<T> : IAsyncRepositoryBase<T> where T : Identif
     /// </summary>
     /// <param name="id"></param>
     /// <returns>T: Entity</returns>
-    Task<T> GetAsync(int id, CancellationToken token = default, params string[] includes);
+    Task<T> GetAsync(long id, CancellationToken token = default, params string[] includes);
 
     /// <summary>
     /// Delete
     /// </summary>
     /// <param name="id"></param>
     /// <returns></returns>
-    Task<bool> DeleteAsync(int id, CancellationToken token = default);
+    Task<bool> DeleteAsync(long id, CancellationToken token = default);
 }
