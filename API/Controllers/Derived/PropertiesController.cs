@@ -25,15 +25,15 @@ public class PropertiesController : ControllerAsync<Property, Search>
     /// <param name="token"></param>
     /// <returns></returns>
     [HttpGet("", Name = "Main")]
-    public override async Task<ActionResult<IEnumerable<Property>>> Get([FromQuery] Search pag, CancellationToken token)
-    {
-        return Ok(await _repository.ListAsync(p =>
-                        (pag.Value == null || p.Price <= pag.Value) &&
-                        (pag.Purpose == null || pag.Purpose == p.OfferPurpose) &&
-                        (pag.Text == null || pag.Text.Contains(p.Address) || p.Address.Contains(pag.Text)), pag, token));
-    }
+    public override Task<ActionResult<IEnumerable<Property>>> Get([FromQuery] Search pag, CancellationToken token) =>
+        Invoke<Search, IEnumerable<Property>>(
+            async (s, ct) => await _repository.ListAsync(p =>
+                (pag.Value == null || p.Price <= pag.Value) &&
+                (pag.Purpose == null || pag.Purpose == p.OfferPurpose) &&
+                (pag.Text == null || pag.Text.Contains(p.Address) || p.Address.Contains(pag.Text)), pag, token)
+            )(pag, token);
 
-    public override async Task<ActionResult<Property>> GetAsync(int id, CancellationToken token = default)
+    public override async Task<ActionResult<Property>> GetAsync(long id, CancellationToken token = default)
     {
         return Ok(await ((IAsyncRepository<Property>)_repository).GetAsync(id, token, "Photos", "Facilities", "Owner"));
     }

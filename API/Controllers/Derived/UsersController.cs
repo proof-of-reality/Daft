@@ -21,8 +21,8 @@ public class UsersController : ControllerAsync<Client, Pagination>
 
         if(_user != null)
         {
-            ModelState.AddModelError("all", "email already exists");
-            return BadRequest(ModelState.IsValid);
+            ModelState.AddModelError("Email", "email already exists");
+            return BadRequest(ModelState);
         }
 
         EncryptPassword(user);

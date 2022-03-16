@@ -15,10 +15,10 @@ public class ControllerAsync<T, Search> : BaseControllerAsync<T, Search>, IAsync
     }
 
     [HttpGet("{id}")]
-    public virtual async Task<ActionResult<T>> GetAsync(int id, CancellationToken token = default) =>
-        ModelState.IsValid ? Ok(await Repository.GetAsync(id, token)) : BadRequest(ModelState.ValidationState);
+    public virtual Task<ActionResult<T>> GetAsync(long id, CancellationToken token = default) =>
+        Invoke<long, T>(async (@id, ct) => await Repository.GetAsync(@id, ct))(id, token);
 
     [HttpDelete("{id}")]
-    public virtual async Task<ActionResult<bool>> DeleteAsync(int id, CancellationToken token = default) =>
-        ModelState.IsValid ? Ok(await Repository.DeleteAsync(id, token)) : BadRequest(ModelState.ValidationState);
+    public virtual Task<ActionResult<bool>> DeleteAsync(long id, CancellationToken token = default) =>
+        Invoke<long, bool>(Repository.DeleteAsync)(id, token);
 }
