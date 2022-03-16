@@ -7,8 +7,8 @@ namespace API.Interfaces;
 public interface IAsyncRest<T>  where T : Identifiable
 {
     [HttpGet("{id}")]
-    Task<ActionResult<T>> GetAsync(int id, CancellationToken token = default);
+    Task<ActionResult<T>> GetAsync(long id, CancellationToken token = default);
 
     [HttpDelete("{id}")]
-    Task<ActionResult<bool>> DeleteAsync(int id, CancellationToken token = default);
+    Task<ActionResult<bool>> DeleteAsync(long id, CancellationToken token = default);
 }
