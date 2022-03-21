@@ -5,6 +5,7 @@ using Hangfire;
 using Hangfire.Dashboard;
 using Hangfire.SqlServer;
 using Infrastructure.SqlServer;
+using Microsoft.EntityFrameworkCore;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Serialization;
 
@@ -23,9 +24,12 @@ builder.Services.AddControllers()
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
-builder.Services.AddDbContext<SqlServerContext>();
+builder.Services.AddDbContext<SqlServerContext>(opt => opt.UseSqlServer(builder.Configuration.GetConnectionString("Daft")));
 builder.Services.AddScoped(typeof(IAsyncRepository<>), typeof(AsyncRepository<>));
 
+builder.Services.AddCors(builder => builder.AddPolicy("AllowAny", s => s.AllowAnyOrigin()
+                                                                         .AllowAnyMethod()
+                                                                         .AllowAnyHeader()));
 builder.Services.AddHangfire(configuration => configuration
         .SetDataCompatibilityLevel(CompatibilityLevel.Version_170)
         .UseSimpleAssemblyNameTypeSerializer()
@@ -48,12 +52,11 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI();
 }
 
-app.UseSwaggerUI();
+app.UseCors("AllowAny");
 app.UseHttpsRedirection();
-app.UseHangfireDashboard("/hangfire", new DashboardOptions { Authorization = new[] { new AllowAny() } });
 app.UseAuthorization();
 app.MapControllers();
-
+app.UseHangfireDashboard("/hangfire", new DashboardOptions { Authorization = new[] { new AllowAny() } });
 
 app.Run();
 
@@ -73,9 +76,6 @@ class UserConverter : DefaultContractResolver
 
 public class AllowAny : IDashboardAuthorizationFilter
 {
-    public bool Authorize(DashboardContext context)
-    {
-        // Allow all authenticated users to see the Dashboard (potentially dangerous).
-        return true;
-    }
+    // Allow all authenticated users to see the Dashboard (potentially dangerous).
+    public bool Authorize(DashboardContext context) => true;
 }
