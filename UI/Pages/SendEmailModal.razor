@@ -3,23 +3,26 @@
 @inherits ComponentAPI
 
 <EditForm Model="request" OnSubmit="SendRequest" class="m-3" style="min-width:50%">
+	<DataAnnotationsValidator />
 	<div class="mb-3">
 		<label class="form-label">Email address</label>
-		<input type="email" @bind-value="request.Email" class="form-control mw-100" placeholder="name@example.com">
+		<InputText type="email" @bind-Value="request.Email" class="form-control mw-100" placeholder="name@example.com"></InputText>
+		<ValidationMessage For="@(() => request.Email)" />
 	</div>
 	<div class="mb-3">
 		<label class="form-label">Text</label>
-		<textarea @bind="request.Text" class="form-control" rows="3"></textarea>
+		<InputTextArea @bind-Value="request.Text" class="form-control" rows="3"></InputTextArea>
+		<ValidationMessage For="@(() => request.Text)" />
 	</div>
-	<button class="btn btn-primary align-content-end">Submit</button>
+	<button type="submit" class="btn btn-primary align-content-end">Submit</button>
 </EditForm>
 
 @code {
 
 	EmailRequest request = new();
 
-	[Parameter] public string Email { get; set; }
 	[Parameter] public long PropertyId { get; set; }
+	[Parameter] public string Email { get; set; } = string.Empty;
 
 	[CascadingParameter] public BlazoredModalInstance thisModal { get; set; }
 
@@ -35,10 +38,9 @@
 		using var api = Endpoint("Properties/");
 		var response = await api.PostAsJsonAsync("Email", request);
 
-		if (response.IsSuccessStatusCode)
-		{
-			var serialized = await response.Content.ReadAsStringAsync();
-			await thisModal.CloseAsync(ModalResult.Ok(serialized));
-		}
+		if (!response.IsSuccessStatusCode) return;
+
+		var serialized = await response.Content.ReadAsStringAsync();
+		await thisModal.CloseAsync(ModalResult.Ok(serialized));
 	}
 }
